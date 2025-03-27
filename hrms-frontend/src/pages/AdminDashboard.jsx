@@ -1,0 +1,153 @@
+import { useState, useEffect } from "react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { useNavigate } from "react-router-dom";
+import { FiSearch, FiMoon, FiSun, FiUserPlus, FiUsers } from "react-icons/fi"; // ✅ Added FiUsers
+import Schedule from "../components/Schedule";
+import EmployeeCard from "../components/EmployeeCard";
+
+
+export default function AdminDashboard() {
+  const [darkMode, setDarkMode] = useState(false);
+  const navigate = useNavigate();
+  const [employees, setEmployees] = useState([]);
+  const [attendanceData, setAttendanceData] = useState([]);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/employees")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && Array.isArray(data)) {
+          setEmployees(data);
+          updateAttendanceGraph(data);
+        }
+      })
+      .catch((error) => console.error("Error fetching employees:", error));
+  }, []);
+
+  const updateAttendanceGraph = (employees) => {
+    const attendanceSummary = [
+      { day: "Mon", attendance: 0 },
+      { day: "Tue", attendance: 0 },
+      { day: "Wed", attendance: 0 },
+      { day: "Thu", attendance: 0 },
+      { day: "Fri", attendance: 0 },
+    ];
+
+    employees.forEach((emp) => {
+      if (emp.attendance && Array.isArray(emp.attendance)) {
+        emp.attendance.forEach((day, index) => {
+          if (attendanceSummary[index]) {
+            attendanceSummary[index].attendance += day;
+          }
+        });
+      }
+    });
+
+    setAttendanceData(attendanceSummary);
+  };
+
+  return (
+    <div className={darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"}>
+      <div className="flex min-h-screen">
+        {/* Sidebar */}
+        <aside className={`w-64 p-4 ${darkMode ? "bg-gray-800" : "bg-white"} shadow-lg flex flex-col justify-between`}>
+          <div>
+            <h2 className="text-2xl font-bold mb-4">HRMS</h2>
+            <nav>
+              <ul>
+                <li className="py-2 cursor-pointer">Dashboard</li>
+                <li className="py-2 cursor-pointer" onClick={() => navigate("/all-employees")}>
+                  All Employees
+                </li>
+                <li className="py-2 cursor-pointer">Attendance</li>
+                <li className="py-2 cursor-pointer">Payroll</li>
+                <li className="py-2 cursor-pointer">Leaves</li>
+              </ul>
+            </nav>
+          </div>
+          <div className="space-y-4">
+            <div className="flex justify-between">
+              <button onClick={() => setDarkMode(false)} className="p-2 bg-gray-300 text-black rounded-md">
+                <FiSun /> Light
+              </button>
+              <button onClick={() => setDarkMode(true)} className="p-2 bg-gray-700 text-white rounded-md">
+                <FiMoon /> Dark
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+      <main className="flex-1 p-6">
+      {/* Header */}
+        <div className="flex justify-between items-center relative">
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <div className="flex items-center space-x-4">
+            <input type="text" placeholder="Search" className="border p-2 rounded-md text-black" />
+            <div className="relative">
+              <img
+                src="/admin-profile.jpg"
+                alt="Admin Profile"
+                className="w-10 h-10 rounded-full cursor-pointer"
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+              />
+              {showProfileMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg text-black">
+                  <button className="block px-4 py-2 w-full text-left hover:bg-gray-200" onClick={() => navigate("/admin-profile")}>
+                    Edit Profile
+                  </button>
+                  <button className="block px-4 py-2 w-full text-left hover:bg-gray-200" onClick={() => navigate("/logout")}>
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+  {/* Dashboard Sections */}
+  <div className="grid grid-cols-3 gap-4 mt-6">
+    {/* Attendance Overview */}
+    <div className={darkMode ? "col-span-2 bg-gray-800 text-white p-6 shadow rounded-lg" : "col-span-2 bg-white p-6 shadow rounded-lg"}>
+      <h3 className="text-lg font-bold">Attendance Overview</h3>
+      <ResponsiveContainer width="100%" height={200}>
+        <BarChart data={attendanceData}>
+          <XAxis dataKey="day" stroke={darkMode ? "white" : "black"} />
+          <YAxis stroke={darkMode ? "white" : "black"} />
+          <Tooltip />
+          <Bar dataKey="attendance" fill={darkMode ? "#ffffff" : "#8884d8"} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+    <div className={darkMode ? "bg-gray-800 text-white p-6 shadow rounded-lg" : "bg-white p-6 shadow rounded-lg"}>
+      <Schedule darkMode={darkMode} currentDate={new Date()} />
+    </div>
+  </div>
+
+  {/* ✅ Employee Attendance (Correctly Placed) */}
+  <div className="mt-6 bg-white p-6 rounded-lg shadow-lg">
+    <div className="flex justify-between items-center mb-4">
+      <h3 className="text-lg font-bold">Employee Attendance</h3>
+      <button onClick={() => navigate("/attendance")} className="text-blue-600 hover:underline">
+        View All
+      </button>
+    </div>
+    <div className="space-y-4">
+  {employees.length > 0 ? (
+    employees.slice(0, 5).map((employee) => (
+      employee ? <EmployeeCard key={employee.id} employee={employee} /> : null
+    ))
+  ) : (
+    <p className="text-gray-500">No employees available</p>
+  )}
+</div>
+
+    
+  </div>
+</main>
+
+      </div>
+    </div>
+  );
+}
