@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));// Ensure Express can parse JSON
 
 app.use(cors());
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
 
 // MySQL Database Connection
 const db = require("./db");
@@ -97,8 +97,9 @@ app.post(
   ]),
   async (req, res) => {
     try {
-      console.log(req.body);  // Debugging: Check form data
-      console.log(req.files); // Debugging: Check uploaded files
+        const employeeData = { ...req.body };  // Ensure parsing of form fields
+        console.log("Received Employee Data:", employeeData);
+
 
       const {
         firstName, lastName, mobile, email, dob, maritalStatus, gender,
@@ -107,9 +108,9 @@ app.post(
       } = req.body;
 
       // 🔴 Check required fields before proceeding
-      if (!firstName || !lastName || !email || !mobile || !type) {
+      if (!employeeData.firstName || !employeeData.lastName || !employeeData.email) {
         return res.status(400).json({ message: "Missing required fields" });
-      }
+    }
 
       const profilePic = req.files["profilePic"] ? req.files["profilePic"][0].path : null;
       const aadharCard = req.files["aadharCard"] ? req.files["aadharCard"][0].path : null;
@@ -131,17 +132,12 @@ app.post(
         role, attendance, profilePic, aadharCard, appointmentLetter,
         otherDocument1, otherDocument2
       ];
-
-      db.query(query, values, (err, result) => {
-        if (err) {
-          console.error("Database error: ", err);
-          return res.status(500).json({ message: "Error adding employee" });
-        }
+      await db.query(query, values);
         res.status(201).json({ message: "Employee added successfully" });
-      });
+
     } catch (error) {
-      console.error("Server error: ", error);
-      res.status(500).json({ message: "Internal server error" });
+        console.error("Server error:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
   }
 );
@@ -151,7 +147,7 @@ app.post(
 app.get("/api/employees/:employeeId", async (req, res) => {
     try {
         const { employeeId } = req.params;
-        const [results] = await db.query("SELECT * FROM employees WHERE employeeId = ?", [employeeId]);
+        const [results] = await db.query(`SELECT * FROM employees WHERE employeeId = ?`, [employeeId]);
 
         if (results.length === 0) {
             return res.status(404).json({ message: "Employee not found" });

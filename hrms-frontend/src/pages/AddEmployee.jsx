@@ -70,49 +70,52 @@ export default function AddEmployee() {
       );
       return;
     }
-  
-  
 
     const formData = new FormData();
 
-    // Append text fields
     Object.entries(employee).forEach(([key, value]) => {
         if (value && !(value instanceof File)) {
             formData.append(key, value);
         }
     });
 
-    // Append files separately
     if (employee.profilePic) formData.append("profilePic", employee.profilePic);
     if (employee.aadharCard) formData.append("aadharCard", employee.aadharCard);
     if (employee.appointmentLetter) formData.append("appointmentLetter", employee.appointmentLetter);
     if (employee.otherDocument1) formData.append("otherDocument1", employee.otherDocument1);
     if (employee.otherDocument2) formData.append("otherDocument2", employee.otherDocument2);
 
-    // Debugging output
-    console.log("🚀 Sending Employee Data:", employee);
-console.log("🚀 FormData Entries:",formData);
-// for (let pair of formData.entries()) {
-//     console.log(pair[0], pair[1]);
-// }
     try {
         const response = await fetch("http://localhost:5000/api/employees", {
             method: "POST",
             body: formData,
         });
 
-        const responseData = await response.json();
-        console.log("Response:", responseData);
+        console.log("Raw Response:", response);
 
         if (!response.ok) {
-            throw new Error(responseData.message || "Failed to add employee");
+            console.error("Response status:", response.status);
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
+        // Check if response has JSON data
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Response is not JSON");
+        }
+
+        const responseData = await response.json();
+        console.log("Response Data:", responseData);
+
         alert("Employee added successfully!");
+        navigate("/all-employees");
+
     } catch (error) {
-        console.error("Error:", error);
+        console.error("Error:", error.message);
+        alert(`Error: ${error.message}`);
     }
 };
+
 
   return (
     <div className="flex">

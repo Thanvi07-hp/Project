@@ -136,7 +136,7 @@ export default function AdminDashboard() {
     <div className="space-y-4">
   {employees.length > 0 ? (
     employees.slice(0, 5).map((employee) => (
-      employee ? <EmployeeCard key={employee.id} employee={employee} /> : null
+      employee ? <EmployeeCard key={employee.employeeId} employee={employee} /> : null
     ))
   ) : (
     <p className="text-gray-500">No employees available</p>
