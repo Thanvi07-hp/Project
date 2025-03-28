@@ -1,4 +1,5 @@
 require("dotenv").config();
+console.log("DB_HOST:", process.env.DB_HOST); 
 const express = require("express");
 const mysql = require("mysql2/promise");
 const bcrypt = require("bcryptjs");
@@ -216,27 +217,81 @@ app.put("/api/employees/:employeeId", async (req, res) => {
 // 🔹 Attendance Routes
 app.use("/api", attendanceRoutes.default || attendanceRoutes);
 
-// 🔹 Mark Attendance
-app.post("/api/mark-attendance", async (req, res) => {
-    const { employeeId, status } = req.body;
-    const today = new Date().toISOString().split("T")[0];
-
+// Fetch Employees and Their Attendance
+app.get("/api/employees", async (req, res) => {
     try {
-        const [results] = await db.query("SELECT * FROM attendance WHERE employeeId = ? AND date = ?", [employeeId, today]);
-
-        if (results.length > 0) {
-            await db.query("UPDATE attendance SET status = ? WHERE employeeId = ? AND date = ?", [status, employeeId, today]);
-            return res.json({ message: "Attendance updated!" });
-        } 
-
-        await db.query("INSERT INTO attendance (employeeId, date, status) VALUES (?, ?, ?)", [employeeId, today, status]);
-        res.json({ message: "Attendance marked successfully!" });
-
-    } catch (error) {
-        console.error("Error marking attendance:", error);
-        res.status(500).json({ error: error.message });
+        const query = `
+                    SELECT e.employeeId, e.firstName, e.lastName, a.status, 
+                        TIME(a.check_in_time) AS check_in_time
+                    FROM employees e
+                    LEFT JOIN attendance a ON e.employeeId = a.employeeId AND a.date = CURDATE();
+                `;
+        const [results] = await db.query(query);
+        res.json(results);
+    } catch (err) {
+        console.error("Error fetching employees:", err);
+        res.status(500).json({ error: "Database error" });
     }
 });
+
+
+
+// Get Attendance for Today
+app.get("/api/get-attendance", async (req, res) => {
+    try {
+        const query = `
+            SELECT a.id, a.employeeId, e.firstName, e.lastName, a.status, a.check_in_time, a.date
+            FROM attendance a
+            JOIN employees e ON a.employeeId = e.employeeId
+            WHERE a.date = CURDATE();
+        `;
+        const [rows] = await db.query(query);
+        res.json(rows);
+    } catch (err) {
+        console.error("Error fetching attendance:", err);
+        res.status(500).json({ error: "Failed to fetch attendance" });
+    }
+});
+
+
+// Mark Attendance
+app.post("/api/mark-attendance", async (req, res) => {
+    const { employeeId, status } = req.body;
+    const checkInTime = status === "Present" ? new Date() : null; // Only record time if Present
+
+    try {
+        // Check if attendance for today exists
+        const checkQuery = "SELECT * FROM attendance WHERE employeeId = ? AND date = CURDATE()";
+        const [existing] = await db.query(checkQuery, [employeeId]);
+
+        if (existing.length > 0) {
+            // If record exists, update it
+            await db.query(
+                "UPDATE attendance SET status = ?, check_in_time = ? WHERE employeeId = ? AND date = CURDATE()",
+                [status, checkInTime, employeeId]
+            );
+        } else {
+            // If no record exists, insert a new one
+            await db.query(
+                "INSERT INTO attendance (employeeId, date, status, check_in_time) VALUES (?, CURDATE(), ?, ?)",
+                [employeeId, status, checkInTime]
+            );
+        }
+
+        // Fetch the updated record and send it to the frontend
+        const [updatedAttendance] = await db.query(
+            "SELECT employeeId, status, check_in_time FROM attendance WHERE employeeId = ? AND date = CURDATE()",
+            [employeeId]
+        );
+
+        res.json(updatedAttendance[0]); // Send updated data to frontend
+    } catch (error) {
+        console.error("Error updating attendance:", error);
+        res.status(500).json({ message: "Error updating attendance" });
+    }
+});
+
+
 
 
 // 🚀 Start Server
