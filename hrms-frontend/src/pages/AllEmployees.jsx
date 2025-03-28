@@ -69,36 +69,7 @@ const handleDelete = async (employeeId) => {
   return (
     <div className={darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"}>
       <div className="flex min-h-screen">
-        {/* Sidebar */}
-        <aside className={`w-64 p-4 ${darkMode ? "bg-gray-800" : "bg-white"} shadow-lg flex flex-col justify-between`}>
-          <div>
-            <h2 className="text-2xl font-bold mb-4">HRMS</h2>
-            <nav>
-              <ul>
-                <li className="py-2 cursor-pointer" onClick={() => navigate("/admin-dashboard")}>
-                  Dashboard
-                </li>
-                <li className="py-2 cursor-pointer bg-blue-500 text-white rounded-md p-2">
-                  All Employees
-                </li>
-                <li className="py-2 cursor-pointer">Attendance</li>
-                <li className="py-2 cursor-pointer">Payroll</li>
-                <li className="py-2 cursor-pointer">Leaves</li>
-              </ul>
-            </nav>
-          </div>
-          <div className="space-y-4">
-            <div className="flex justify-between">
-              <button onClick={() => setDarkMode(false)} className="p-2 bg-gray-300 text-black rounded-md">
-                <FiSun /> Light
-              </button>
-              <button onClick={() => setDarkMode(true)} className="p-2 bg-gray-700 text-white rounded-md">
-                <FiMoon /> Dark
-              </button>
-            </div>
-          </div>
-        </aside>
-
+        
         {/* Main Content */}
         <div className="flex-1 p-6">
           {/* Header */}

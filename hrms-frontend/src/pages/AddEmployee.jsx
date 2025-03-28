@@ -119,32 +119,7 @@ export default function AddEmployee() {
 
   return (
     <div className="flex">
-      {/* Sidebar */}
-      <aside className={`w-64 min-h-screen p-4 ${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"} shadow-lg flex flex-col justify-between`}>
-        <div>
-          <h2 className="text-2xl font-bold mb-4">HRMS</h2>
-          <nav>
-            <ul>
-              <li className="py-2 cursor-pointer" onClick={() => navigate("/admin-dashboard")}>Dashboard</li>
-              <li className="py-2 cursor-pointer bg-blue-500 text-white rounded-md p-2"onClick={() => navigate("/all-employees")}>All Employees</li>
-              <li className="py-2 cursor-pointer">Attendance</li>
-              <li className="py-2 cursor-pointer">Payroll</li>
-              <li className="py-2 cursor-pointer">Leaves</li>
-            </ul>
-          </nav>
-        </div>
-        {/* Dark Mode Toggle */}
-        <div className="space-y-4">
-          <div className="flex justify-between">
-            <button onClick={() => setDarkMode(false)} className="p-2 bg-gray-300 text-black rounded-md">
-              <FiSun /> Light
-            </button>
-            <button onClick={() => setDarkMode(true)} className="p-2 bg-gray-700 text-white rounded-md">
-              <FiMoon /> Dark
-            </button>
-          </div>
-        </div>
-      </aside>
+      
 
       {/* Main Section */}
       <div className="w-4/5 p-6">
