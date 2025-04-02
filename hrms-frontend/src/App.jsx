@@ -11,6 +11,7 @@ import EditEmployee from "./components/EditEmployee";
 import EmployeeManagement from "./pages/EmployeeManagement";
 import Attendance from "./components/Attendance";
 import HolidayPage from "./components/HolidayPage";
+import Task from "./pages/Task";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -46,6 +47,7 @@ function MainContent() {
           <Route path="/edit-employee/:employeeId" element={<EditEmployee />} />
           <Route path="/employee-management/:id" element={<EmployeeManagement />} />
           <Route path="/attendance" element={<Attendance />} />
+          <Route path="/task" element={<Task />} /> 
           <Route path="/payroll" element={<Payroll />} />
           <Route path="/holidays" element={<HolidayPage />} />
         </Routes>
