@@ -8,7 +8,6 @@ const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const attendanceRoutes = require("./routes/attendance"); 
 
 const app = express();
 app.use(express.json());
@@ -215,7 +214,6 @@ app.put("/api/employees/:employeeId", async (req, res) => {
 
 
 // 🔹 Attendance Routes
-app.use("/api", attendanceRoutes.default || attendanceRoutes);
 
 // Fetch Employees and Their Attendance
 app.get("/api/employees", async (req, res) => {
@@ -293,6 +291,227 @@ app.post("/api/mark-attendance", async (req, res) => {
 
 
 
+//  Fetch all payroll records (Ensure all employees are included)
+app.get("/api/payroll", async (req, res) => {
+  try {
+      const query = `
+          SELECT e.employeeId, e.firstName, e.lastName, e.profilePic, 
+                 p.id AS payrollId, p.salary, p.TDS, p.Advance, p.status, p.updated_at
+          FROM employees e
+          LEFT JOIN payroll p ON e.employeeId = p.employeeId;
+      `;
+
+      const [rows] = await db.query(query);
+
+      // Format the 'updated_at' field to show only the date
+      rows.forEach(row => {
+          const dbTime = new Date(row.updated_at);
+          const formattedDate = dbTime.toLocaleDateString("en-IN"); // This formats to "DD/MM/YYYY"
+          row.updated_at = formattedDate;  // Replace the time with only the date
+      });
+
+      res.json(rows);
+  } catch (error) {
+      console.error("Error fetching payroll:", error);
+      res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+// Add or Update Payroll Entry Automatically
+app.post("/api/payroll/add", async (req, res) => {
+  const { employeeId, salary, TDS, Advance, status } = req.body;
+
+  if (!employeeId || !salary) {
+      return res.status(400).json({ message: "Employee ID and Salary are required" });
+  }
+
+  try {
+      const [existing] = await db.query("SELECT id FROM payroll WHERE employeeId = ?", [employeeId]);
+
+      if (existing.length > 0) {
+          // If exists, update instead of throwing error, and store only the date in updated_at
+          await db.query(
+              "UPDATE payroll SET salary = ?, TDS = ?, Advance = ?, status = ?, updated_at = CURDATE() WHERE employeeId = ?",
+              [salary, TDS || 0, Advance || 0, status || "Pending", employeeId]
+          );
+          return res.json({ message: "Payroll updated successfully" });
+      }
+
+      // Otherwise, insert new payroll entry, storing only the date in updated_at
+      await db.query(
+          "INSERT INTO payroll (employeeId, salary, TDS, Advance, status, updated_at) VALUES (?, ?, ?, ?, ?, CURDATE())",
+          [employeeId, salary, TDS || 0, Advance || 0, status || "Pending"]
+      );
+
+      res.status(201).json({ message: "Payroll added successfully" });
+  } catch (error) {
+      console.error("Error adding payroll:", error);
+      res.status(500).json({ error: "Server error" });
+  }
+});
+
+//  Update Payroll Entry
+app.put("/api/payroll/update/:id", async (req, res) => {
+  const { salary, tds, advance, status } = req.body;
+  const { id } = req.params;
+
+  try {
+    await db.query(
+      "UPDATE payroll SET salary = ?, tds = ?, advance = ?, status = ?, updated_at = CURDATE() WHERE id = ?",
+      [salary, tds, advance, status, id]
+    );
+    res.json({ message: "Payroll updated successfully" });
+  } catch (error) {
+    console.error("Error updating payroll:", error);
+    res.status(500).json({ error: "Server error updating payroll" });
+  }
+});
+
+
+//API of  payroll and saving 
+const ExcelJS = require("exceljs");
+const fs = require("fs");
+
+app.get("/api/payroll/export", async (req, res) => {
+  try {
+      const [payrollData] = await db.query(`
+          SELECT employees.firstName, employees.lastName, payroll.salary, payroll.tds, payroll.advance, 
+                 (payroll.salary - payroll.tds - payroll.advance) AS netSalary, payroll.updated_at 
+          FROM payroll 
+          JOIN employees ON payroll.employeeId = employees.employeeId
+      `);
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Payroll Report");
+
+      // Add Headers
+      worksheet.addRow(["Employee Name", "Salary", "TDS", "Advance", "Net Salary", "Date"]); // Change the column header to just "Date"
+      worksheet.getRow(1).font = { bold: true }; // Make headers bold
+
+      worksheet.getColumn(6).width = 25; // Set width for Date column
+
+      // Add Payroll Data
+      payrollData.forEach((entry) => {
+        const dbTime = new Date(entry.updated_at);
+        
+        // Format the date to remove the time portion
+        const formattedDate = dbTime.toISOString().split('T')[0];  // Formats as 'YYYY-MM-DD'
+
+        worksheet.addRow([
+            `${entry.firstName} ${entry.lastName}`,
+            entry.salary,
+            entry.tds,
+            entry.advance,
+            entry.salary - entry.tds - entry.advance, // Net Salary
+            formattedDate, // Only Date (no time)
+        ]);
+      });
+
+      // Create Folder if Not Exists
+      const reportsDir = path.join(__dirname, "payroll_reports");
+      if (!fs.existsSync(reportsDir)) {
+          fs.mkdirSync(reportsDir);
+      }
+
+      // Save File
+      const filePath = path.join(reportsDir, `Payroll_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      await workbook.xlsx.writeFile(filePath);
+
+      // Send File for Download
+      res.download(filePath);
+  } catch (error) {
+      console.error("Error exporting payroll:", error);
+      res.status(500).json({ error: "Server error while exporting payroll" });
+  }
+});
+
+
+//Holiday Section
+
+// Helper function to get the day of the week
+function getDayOfWeek(date) {
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const d = new Date(date);
+  return days[d.getDay()];
+}
+
+// CREATE: Add a new holiday
+app.post('/api/holidays', async (req, res) => {
+  const { name, date } = req.body;
+  const day = getDayOfWeek(date);
+
+  try {
+    const [result] = await db.execute(
+      'INSERT INTO holidays (name, date, day) VALUES (?, ?, ?)', 
+      [name, date, day]
+    );
+    res.status(201).json({ id: result.insertId, name, date, day });
+  } catch (err) {
+    res.status(500).json({ message: 'Error inserting holiday', error: err.message });
+  }
+});
+
+// READ: Get all holidays
+app.get('/api/holidays', async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT * FROM holidays');
+    res.status(200).json(rows);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching holidays', error: err.message });
+  }
+});
+
+// READ: Get a specific holiday by ID
+app.get('/api/holidays/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await db.execute('SELECT * FROM holidays WHERE id = ?', [id]);
+    if (rows.length > 0) {
+      res.status(200).json(rows[0]);
+    } else {
+      res.status(404).json({ message: 'Holiday not found' });
+    }
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching holiday', error: err.message });
+  }
+});
+
+
+// UPDATE: Update holiday status (Upcoming or Past)
+app.put('/api/holidays/:id/status', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  if (!['Upcoming', 'Past'].includes(status)) {
+    return res.status(400).json({ message: 'Invalid status' });
+  }
+
+  try {
+    const [result] = await promisePool.execute(
+      'UPDATE holidays SET status = ? WHERE id = ?',
+      [status, id]
+    );
+    if (result.affectedRows > 0) {
+      res.status(200).json({ message: 'Holiday status updated' });
+    } else {
+      res.status(404).json({ message: 'Holiday not found' });
+    }
+  } catch (err) {
+    res.status(500).json({ message: 'Error updating holiday status', error: err.message });
+  }
+});
+
+// DELETE: Delete a holiday by ID
+app.delete('/api/holidays/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM holidays WHERE id = ?', [id]);
+    res.status(200).json({ message: 'Holiday deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting holiday:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 // 🚀 Start Server
 

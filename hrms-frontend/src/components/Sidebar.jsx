@@ -29,8 +29,8 @@ const Sidebar = () => {
               <li className={`py-2 cursor-pointer ${isActive("/payroll")}`} onClick={() => navigate("/payroll")}>
                 Payroll
               </li>
-              <li className={`py-2 cursor-pointer ${isActive("/leaves")}`} onClick={() => navigate("/leaves")}>
-                Leaves
+              <li className={`py-2 cursor-pointer ${isActive("/holidays")}`} onClick={() => navigate("/holidays")}>
+                Holidays
               </li>
             </ul>
           </nav>
