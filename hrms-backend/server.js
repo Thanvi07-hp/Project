@@ -8,16 +8,14 @@ const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const attendanceRoutes = require("./routes/attendance"); 
+
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));// Ensure Express can parse JSON
 
 app.use(cors());
-// app.use(bodyParser.json());
 
-// MySQL Database Connection
 const db = require("./db");
 
 
@@ -214,8 +212,6 @@ app.put("/api/employees/:employeeId", async (req, res) => {
 });
 
 
-// 🔹 Attendance Routes
-app.use("/api", attendanceRoutes.default || attendanceRoutes);
 
 // Fetch Employees and Their Attendance
 app.get("/api/employees", async (req, res) => {
@@ -291,6 +287,149 @@ app.post("/api/mark-attendance", async (req, res) => {
     }
 });
 
+
+const fs = require("fs");
+const ExcelJS = require("exceljs");
+
+// Export Attendance Data to Excel 
+app.get("/api/export-attendance", async (req, res) => {
+    try {
+        // Fetch attendance data
+        const [results] = await db.query(`
+            SELECT a.employeeId, e.firstName, 
+                   DATE_FORMAT(a.date, '%d-%m-%Y') AS formatted_date, 
+                   TIME_FORMAT(a.check_in_time, '%h:%i:%s %p') AS formatted_check_in_time
+            FROM attendance a
+            JOIN employees e ON a.employeeId = e.employeeId
+            ORDER BY a.date ASC;
+        `);
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: "No attendance data found" });
+        }
+
+        // Transform data into the required format
+        const attendanceData = {};
+
+        results.forEach(({ employeeId, firstName, formatted_date, formatted_check_in_time }) => {
+            if (!attendanceData[employeeId]) {
+                attendanceData[employeeId] = { "Employee ID": employeeId, "First Name": firstName };
+            }
+            attendanceData[employeeId][formatted_date] = formatted_check_in_time || "---";
+        });
+
+        // Convert object to array
+        const formattedArray = Object.values(attendanceData);
+
+        // Create a new Excel workbook
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Attendance");
+
+        // 🔹 Define header row
+        const headers = Object.keys(formattedArray[0]);
+        worksheet.addRow(headers);
+
+        // 🔹 Apply styles to header row
+        worksheet.getRow(1).eachCell((cell) => {
+            cell.font = { bold: true }; // Bold text
+            cell.fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "FFFF00" }, // Yellow background
+            };
+            cell.alignment = { horizontal: "center", vertical: "middle" }; // Center alignment
+        });
+
+        // 🔹 Add data rows
+        formattedArray.forEach((row) => {
+            worksheet.addRow(Object.values(row));
+        });
+
+        // 🔹 Adjust column widths
+        worksheet.columns = headers.map((header) => ({
+            header,
+            key: header,
+            width: header.length + 5, // Auto adjust width
+        }));
+
+        // Ensure "exports" directory exists
+        const exportDir = path.join(__dirname, "exports");
+        if (!fs.existsSync(exportDir)) {
+            fs.mkdirSync(exportDir, { recursive: true });
+        }
+
+        // Define file path
+        const filePath = path.join(exportDir, `attendance_${Date.now()}.xlsx`);
+
+        // Write file to disk
+        await workbook.xlsx.writeFile(filePath);
+
+        res.json({ message: "Attendance exported successfully", filePath });
+
+    } catch (error) {
+        console.error("Error exporting attendance:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+//Tasks`
+app.post("/api/tasks", async (req, res) => {
+    const { title, description, dueDate, employee, assignedAt, status } = req.body;
+    const formattedDueDate = dueDate.split("T")[0];
+    const sql = "INSERT INTO tasks (title, description, dueDate, employee, assignedAt, status) VALUES (?, ?, ?, ?, ?, ?)";
+    
+    try {
+        const [result] = await db.query(sql, [title, description, formattedDueDate, employee, assignedAt, status]);
+        res.status(201).json({ id: result.insertId, ...req.body });
+    } catch (err) {
+        res.status(500).send(err);
+    }
+});
+
+// Fetch tasks
+app.get("/api/tasks", async (req, res) => {
+    try {
+        const [results] = await db.query("SELECT * FROM tasks");
+        res.json(results);
+    } catch (err) {
+        res.status(500).send(err);
+    }
+});
+
+// Update task status
+// Edit Task (PUT request)
+app.put("/api/tasks/:id", async (req, res) => {
+    const { title, description, dueDate, employee, status } = req.body;
+    const formattedDueDate = dueDate.split("T")[0]; // Ensure the dueDate is formatted correctly (YYYY-MM-DD)
+    const sql = "UPDATE tasks SET title = ?, description = ?, dueDate = ?, employee = ?, status = ? WHERE id = ?";
+    
+    try {
+        const [result] = await db.query(sql, [title, description, formattedDueDate, employee, status, req.params.id]);
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Task not found" });
+        }
+
+        res.json({ message: "Task updated", id: req.params.id });
+    } catch (err) {
+        res.status(500).send(err);
+    }
+});
+
+// Delete Task (DELETE request)
+app.delete("/api/tasks/:id", async (req, res) => {
+    try {
+        const [result] = await db.query("DELETE FROM tasks WHERE id = ?", [req.params.id]);
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Task not found" });
+        }
+
+        res.json({ message: "Task deleted" });
+    } catch (err) {
+        res.status(500).send(err);
+    }
+});
 
 
 

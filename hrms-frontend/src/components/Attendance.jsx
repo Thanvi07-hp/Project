@@ -7,55 +7,55 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Attendance = () => {
-  const [employees, setEmployees] = useState([]);
-  const [filter, setFilter] = useState("");
-
-  useEffect(() => {
-      fetchEmployees();
-  }, []);
-
-  const fetchEmployees = async () => {
-    try {
-        const response = await axios.get("http://localhost:5000/api/employees");
-
-        // Ensure check-in time and status are correctly displayed
-        const formattedEmployees = response.data.map(emp => ({
-            ...emp,
-            check_in_time: emp.check_in_time 
-                ? new Date(emp.check_in_time).toLocaleTimeString("en-GB", { 
-                    hour: "2-digit", 
-                    minute: "2-digit", 
-                    second: "2-digit", 
-                    hour12: false 
-                }) 
-                : "--",
-            status: emp.status || "Not Marked"  // Ensure status is shown correctly
-        }));
-
-        setEmployees(formattedEmployees);
-    } catch (err) {
-        toast.error("Failed to fetch employees.");
-    }
-};
-
-  const markAttendance = async (employeeId, status) => {
+    const [employees, setEmployees] = useState(() => {
+      const savedData = localStorage.getItem("employees");
+      return savedData ? JSON.parse(savedData) : [];
+    });
+    const [filter, setFilter] = useState("");
+  
+    useEffect(() => {
+      if (employees.length === 0) fetchEmployees();
+    }, []);
+  
+    const fetchEmployees = async () => {
       try {
-          const response = await axios.post("http://localhost:5000/api/mark-attendance", { employeeId, status });
-
-          console.log("Check-in Time Received from Backend:", response.data.check_in_time); 
-          
-          const checkInTime = response.data.check_in_time;
-
-          setEmployees(prev =>
-              prev.map(emp =>
-                  emp.employeeId === employeeId ? { ...emp, status, check_in_time: checkInTime } : emp
-              )
-          );
-          toast.success("Attendance marked successfully!");
-      } catch (err) {
-          toast.error("Error marking attendance.");
+        const response = await axios.get("http://localhost:5000/api/employees");
+        const formattedEmployees = response.data.map(emp => ({
+          ...emp,
+          check_in_time: emp.check_in_time 
+            ? new Date(emp.check_in_time).toLocaleTimeString("en-GB", { 
+                hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false 
+              }) 
+            : "--",
+          status: emp.status || "Not Marked"
+        }));
+        setEmployees(formattedEmployees);
+        localStorage.setItem("employees", JSON.stringify(formattedEmployees)); // Save data
+      } 
+      catch (err) {
+        toast.error("Failed to fetch employees.");
       }
-  };
+    };
+  
+    const markAttendance = async (employeeId, status) => {
+      try {
+        const response = await axios.post("http://localhost:5000/api/mark-attendance", { employeeId, status });
+        const checkInTime = response.data.check_in_time;
+  
+        const updatedEmployees = employees.map(emp =>
+          emp.employeeId === employeeId ? { ...emp, status, check_in_time: checkInTime } : emp
+        );
+  
+        setEmployees(updatedEmployees);
+        localStorage.setItem("employees", JSON.stringify(updatedEmployees)); 
+        toast.success("Attendance marked successfully!");// Update local storage
+      } 
+      catch (err) {
+        toast.error("Error marking attendance.");
+      }
+    };
+  
+
 
   return (
       <div className="p-6">

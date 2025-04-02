@@ -10,6 +10,7 @@ import EditEmployee from "./components/EditEmployee";
 import EmployeeManagement from "./pages/EmployeeManagement";
 import Attendance from "./components/Attendance";
 import { ToastContainer } from "react-toastify";
+import Task from "./pages/Task";
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
@@ -30,7 +31,7 @@ function App() {
         <Route path="/edit-employee/:employeeId" element={<EditEmployee />} />
         <Route path="/employee-management/:id" element={<EmployeeManagement />} />
         <Route path="/attendance" element={<Attendance />} />
-
+        <Route path="/task" element={<Task />} /> 
         </Routes>
         </div>
         </div>

@@ -1,127 +1,219 @@
-import { useState, useEffect } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { useNavigate } from "react-router-dom";
-import { FiSearch, FiMoon, FiSun, FiUserPlus, FiUsers } from "react-icons/fi"; // ✅ Added FiUsers
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import Schedule from "../components/Schedule";
-import EmployeeCard from "../components/EmployeeCard";
+import { Bar } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 
+// Register the required Chart.js components
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-export default function AdminDashboard() {
-  const [darkMode, setDarkMode] = useState(false);
-  const navigate = useNavigate();
+const AdminDashboard = () => {
   const [employees, setEmployees] = useState([]);
-  const [attendanceData, setAttendanceData] = useState([]);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [attendance, setAttendance] = useState([]);
+  const [mergedData, setMergedData] = useState([]); // To store combined employee + attendance data
+  const [tasks, setTasks] = useState([]);
+  
 
+  // Fetch Employees, Attendance, and Tasks on component mount
   useEffect(() => {
-    fetch("http://localhost:5000/api/employees")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && Array.isArray(data)) {
-          setEmployees(data);
-          updateAttendanceGraph(data);
-        }
-      })
-      .catch((error) => console.error("Error fetching employees:", error));
+    const fetchEmployees = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/employees");
+        setEmployees(response.data);
+      } catch (error) {
+        console.error("Error fetching employees", error);
+      }
+    };
+
+    const fetchAttendance = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/get-attendance");
+        // Filter attendance data to show only "Present" employees
+        const presentEmployees = response.data.filter(emp => emp.status === "Present");
+        setAttendance(presentEmployees);
+      } catch (error) {
+        console.error("Error fetching attendance", error);
+      }
+    };
+
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/tasks");
+        setTasks(response.data);
+      } catch (error) {
+        console.error("Error fetching tasks", error);
+      }
+    };
+
+    fetchEmployees();
+    fetchAttendance();
+    fetchTasks();
   }, []);
 
-  const updateAttendanceGraph = (employees) => {
-    const attendanceSummary = [
-      { day: "Mon", attendance: 0 },
-      { day: "Tue", attendance: 0 },
-      { day: "Wed", attendance: 0 },
-      { day: "Thu", attendance: 0 },
-      { day: "Fri", attendance: 0 },
-    ];
+  useEffect(() => {
+    // Merge employee and attendance data when both are available
+    if (employees.length > 0 && attendance.length > 0) {
+      const merged = attendance.map((att) => {
+        const employee = employees.find((emp) => emp.employeeId === att.employeeId);
+        if (employee) {
+          return { ...att, ...employee }; // Merge employee and attendance data
+        }
+        return null;
+      }).filter(item => item !== null);
 
-    employees.forEach((emp) => {
-      if (emp.attendance && Array.isArray(emp.attendance)) {
-        emp.attendance.forEach((day, index) => {
-          if (attendanceSummary[index]) {
-            attendanceSummary[index].attendance += day;
-          }
-        });
-      }
-    });
+      setMergedData(merged);
+    }
+  }, [employees, attendance]);
 
-    setAttendanceData(attendanceSummary);
-  };
+
 
   return (
-    <div className={darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"}>
-      <div className="flex min-h-screen">
-      {/* <Sidebar />  */}
-
-        {/* Main Content */}
-      <main className="flex-1 p-6">
+    <div className="min-h-screen bg-gray-100 p-6">
       {/* Header */}
-        <div className="flex justify-between items-center relative">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <div className="flex items-center space-x-4">
-            <input type="text" placeholder="Search" className="border p-2 rounded-md text-black" />
-            <div className="relative">
-              <img
-                src="/admin-profile.jpg"
-                alt="Admin Profile"
-                className="w-10 h-10 rounded-full cursor-pointer"
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
-              />
-              {showProfileMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg text-black">
-                  <button className="block px-4 py-2 w-full text-left hover:bg-gray-200" onClick={() => navigate("/admin-profile")}>
-                    Edit Profile
-                  </button>
-                  <button className="block px-4 py-2 w-full text-left hover:bg-gray-200" onClick={() => navigate("/logout")}>
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
+      <header className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">Hello Admin 👋</h1>
+          <p className="text-gray-600">Good Morning</p>
+        </div>
+        <div className="flex items-center space-x-4">
+          <input
+            type="text"
+            placeholder="Search"
+            className="p-2 border rounded-md"
+          />
+          <div className="flex items-center space-x-2">
+            <img
+              src="https://via.placeholder.com/40"
+              alt="Profile"
+              className="w-10 h-10 rounded-full"
+            />
+            <span></span>
           </div>
         </div>
+      </header>
 
-  {/* Dashboard Sections */}
-  <div className="grid grid-cols-3 gap-4 mt-6">
-    {/* Attendance Overview */}
-    <div className={darkMode ? "col-span-2 bg-gray-800 text-white p-6 shadow rounded-lg" : "col-span-2 bg-white p-6 shadow rounded-lg"}>
-      <h3 className="text-lg font-bold">Attendance Overview</h3>
-      <ResponsiveContainer width="100%" height={200}>
-        <BarChart data={attendanceData}>
-          <XAxis dataKey="day" stroke={darkMode ? "white" : "black"} />
-          <YAxis stroke={darkMode ? "white" : "black"} />
-          <Tooltip />
-          <Bar dataKey="attendance" fill={darkMode ? "#ffffff" : "#8884d8"} />
-        </BarChart>
-      </ResponsiveContainer>
+      {/* Stats Cards */}
+      <section className="grid grid-cols-4 gap-4 mb-6">
+        {[
+          { title: "Total Employee", value: employees.length},
+          { title: "Today Attendance", value: attendance.length }, // Only present employees will be shown here
+          { title: "Total Tasks", value: tasks.length },
+          { title: "Completed Tasks", value: tasks.filter(task => task.status === "Completed").length },
+        ].map((stat, index) => (
+          <div
+            key={index}
+            className="bg-white p-4 rounded-lg shadow-md flex flex-col"
+          >
+            <h3 className="text-gray-600">{stat.title}</h3>
+            <div className="flex justify-between items-center mt-2">
+              <span className="text-xl font-bold">{stat.value}</span>
+              <span
+                className={`text-sm ${
+                  stat.change && stat.change.startsWith("+")
+                    ? "text-green-500"
+                    : "text-red-500"
+                }`}
+              >
+                {stat.change}
+              </span>
+            </div>
+          </div>
+        ))}
+      </section>
+
+      {/* Main Section */}
+      <section className="grid grid-cols-3 gap-4">
+        {/* Attendance Overview Chart */}
+        <div className="col-span-2 bg-white p-4 rounded-lg shadow-md">
+          <h3 className="font-bold mb-4">Attendance Overview</h3>
+          {/* Placeholder for the chart */}
+          <div className="w-full h-[340px] bg-gray-200 rounded-md"></div>
+        </div>
+
+        {/* Schedule */}
+        <div >
+      <Schedule  currentDate={new Date()} />
     </div>
-    <div className={darkMode ? "bg-gray-800 text-white p-6 shadow rounded-lg" : "bg-white p-6 shadow rounded-lg"}>
-      <Schedule darkMode={darkMode} currentDate={new Date()} />
-    </div>
-  </div>
+        {/* Attendance Table */}
+        <div className="col-span-full bg-white p-4 rounded-lg shadow-md mt-6">
+          <h3 className="font-bold mb-4">Attendance Overview</h3>
+          {/* Table */}
+          <table className="w-full border-collapse border border-gray-300 text-left text-sm">
+            <thead>
+              <tr>
+                {["Employee Name", "Designation", "Type", "Check In Time", "Status"].map(
+                  (header) => (
+                    <th
+                      key={header}
+                      className="border border-gray-300 px-4 py-2 bg-gray-100"
+                    >
+                      {header}
+                    </th>
+                  )
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {attendance.map((emp, index) => (
+                <tr key={index}>
+                  <td className="border border-gray-300 px-4 py-2">{`${emp.firstName} ${emp.lastName}`}</td>
+                  <td className="border border-gray-300 px-4 py-2">{`${emp.designation}`}</td>
+                  <td className="border border-gray-300 px-4 py-2">{emp.type}</td>
+                  <td className="border border-gray-300 px-4 py-2">{emp.check_in_time}</td>
+                  <td
+                    className={`border border-gray-300 px-4 py-2 ${
+                      emp.status === "Late" ? "text-red-500" : "text-green-500"
+                    }`}
+                  >
+                    {emp.status}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-  {/* ✅ Employee Attendance (Correctly Placed) */}
-  <div className="mt-6 bg-white p-6 rounded-lg shadow-lg">
-    <div className="flex justify-between items-center mb-4">
-      <h3 className="text-lg font-bold">Employee Attendance</h3>
-      <button onClick={() => navigate("/attendance")} className="text-blue-600 hover:underline">
-        View All
-      </button>
-    </div>
-    <div className="space-y-4">
-  {employees.length > 0 ? (
-    employees.slice(0, 5).map((employee) => (
-      employee ? <EmployeeCard key={employee.employeeId} employee={employee} /> : null
-    ))
-  ) : (
-    <p className="text-gray-500">No employees available</p>
-  )}
-</div>
-
-    
-  </div>
-</main>
-
-      </div>
+      {/* Tasks Section */}
+      <section className="mt-6">
+        <h3 className="font-bold mb-4">Tasks</h3>
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          {tasks.length > 0 ? (
+            <table className="w-full border-collapse border border-gray-300 text-left text-sm">
+              <thead>
+                <tr>
+                  {["Task", "Description", "Due Date", "Assigned Employee", "Status"].map((header) => (
+                    <th key={header} className="border border-gray-300 px-4 py-2 bg-gray-100">
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {tasks.map((task, index) => (
+                  <tr key={index}>
+                    <td className="border border-gray-300 px-4 py-2">{task.title}</td>
+                    <td className="border border-gray-300 px-4 py-2">{task.description}</td>
+                    <td className="border border-gray-300 px-4 py-2">{task.dueDate}</td>
+                    <td className="border border-gray-300 px-4 py-2">{task.employee}</td>
+                    <td
+                      className={`border border-gray-300 px-4 py-2 ${
+                        task.status === "Completed" ? "text-green-500" : "text-yellow-500"
+                      }`}
+                    >
+                      {task.status}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>No tasks available</p>
+          )}
+        </div>
+      </section>
     </div>
   );
-}
+};
+
+export default AdminDashboard;

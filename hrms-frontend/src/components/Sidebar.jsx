@@ -8,11 +8,16 @@ const Sidebar = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   // Function to determine if the link is active
-  const isActive = (path) => location.pathname === path ? "bg-blue-500 text-white rounded-md p-2" : "text-black dark:text-white";
+  const isActive = (path) =>
+    location.pathname === path ? "bg-blue-500 text-white rounded-md p-2" : "text-black dark:text-white";
 
   return (
     <div className="flex">
-      <aside className={`w-64 min-h-screen p-4 ${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"} shadow-lg flex flex-col justify-between`}>
+      <aside
+        className={`w-64 min-h-screen p-4 ${
+          darkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+        } shadow-lg flex flex-col justify-between`}
+      >
         <div>
           <h2 className="text-2xl font-bold mb-4">HRMS</h2>
           <nav>
@@ -31,6 +36,9 @@ const Sidebar = () => {
               </li>
               <li className={`py-2 cursor-pointer ${isActive("/leaves")}`} onClick={() => navigate("/leaves")}>
                 Leaves
+              </li>
+              <li className={`py-2 cursor-pointer ${isActive("/task")}`} onClick={() => navigate("/task")}>
+                Tasks
               </li>
             </ul>
           </nav>
