@@ -91,7 +91,7 @@ router.post("/login", async (req, res) => {
 // Get Employee Details
 router.get("/employees/:id", async (req, res) => {
   const { id } = req.params;
-
+// console.log("Employee ID from useParams:", id);
   try {
     const [results] = await db.execute(
       `SELECT employeeId, firstName, lastName, email, profilePic, 
@@ -114,9 +114,9 @@ router.get("/employees/:id", async (req, res) => {
 
 // Update Employee Profile
 router.put("/:employeeId", async (req, res) => {
-  console.log("PUT /api/employees/:employeeId hit"); 
+  // console.log("PUT /api/employees/:employeeId hit"); 
     const { employeeId } = req.params;
-    console.log("employeeId:", employeeId);
+    // console.log("employeeId:", employeeId);
   const {
     firstName, lastName, mobile, email, dob, maritalStatus, gender, nationality,
     address, city, state, zip, type, department, designation, workingDays,
@@ -124,8 +124,8 @@ router.put("/:employeeId", async (req, res) => {
     aadharCard, appointmentLetter, otherDocument1, otherDocument2
   } = req.body;
 
-  console.log("Update request received for:", employeeId); 
-  console.log("Updated data:", req.body);
+  // console.log("Update request received for:", employeeId); 
+  // console.log("Updated data:", req.body);
 
   try {
     const sql = `UPDATE employees 
@@ -189,24 +189,6 @@ router.post("/upload-profile-pic", upload.single("profilePic"), async (req, res)
   }
 });
 
-// Get attendance for specific employee
-router.get("/:employeeId", async (req, res) => {
-  const { employeeId } = req.params;
 
-  try {
-    const [rows] = await db.execute(
-      `SELECT id, date, status, check_in_time 
-       FROM attendance 
-       WHERE employeeId = ? 
-       ORDER BY date DESC`,
-      [employeeId]
-    );
-
-    res.json(rows);
-  } catch (err) {
-    console.error("❌ Error fetching attendance:", err.message);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-});
 
 module.exports = router;

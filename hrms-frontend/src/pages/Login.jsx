@@ -23,9 +23,9 @@ export default function Login() {
   
       // 🔹 Store token, role, and employeeId
       localStorage.setItem("token", data.token);
-      localStorage.setItem("role", data.role);
-      if (data.employeeId) {
-        localStorage.setItem("employeeId", data.employeeId);
+       localStorage.setItem("role", data.role);
+      if (data.employee && data.employee.employeeId) {
+        localStorage.setItem("employeeId", data.employee.employeeId);
       }
   
       navigate(data.role === "admin" ? "/admin-dashboard" : "/employee-dashboard");

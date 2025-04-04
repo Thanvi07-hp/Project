@@ -23,7 +23,7 @@ export default function EmployeeAttendance() {
     useEffect(() => {
         const fetchEmployeeAndAttendance = async () => {
           const employeeId = localStorage.getItem("employeeId");
-          console.log("📌 employeeId from localStorage:", employeeId);
+          // console.log("📌 employeeId from localStorage:", employeeId);
       
           if (!employeeId) {
             console.warn("⚠️ No employeeId found in localStorage. Redirecting to login.");
@@ -34,9 +34,9 @@ export default function EmployeeAttendance() {
           try {
             const resEmp = await fetch(`http://localhost:5000/api/employees/${employeeId}`);
             if (!resEmp.ok) throw new Error(`❌ Failed to fetch employee: ${resEmp.status}`);
-            const empData = await resEmp.json();
-            setEmployee(empData);
-      
+            const employeeData = await resEmp.json();
+            setEmployee(employeeData);
+                  
             const resAttendance = await fetch(`http://localhost:5000/api/attendance/${employeeId}`);
             if (!resAttendance.ok) {
             const errorText = await resAttendance.text();

@@ -6,8 +6,7 @@ import { FaEdit, FaUser, FaBriefcase, FaFileAlt } from "react-icons/fa";
 
 export default function EmployeeProfileEdit() {
     const { id } = useParams();
-    console.log("Employee ID from useParams:", id);
-    const [employee, setEmployee] = useState(null);
+    console.log("Employee ID from useParams:", id);    const [employee, setEmployee] = useState(null);
     const [formData, setFormData] = useState({});
     const [isEditing, setIsEditing] = useState(false);
     const [activeTab, setActiveTab] = useState("personal");

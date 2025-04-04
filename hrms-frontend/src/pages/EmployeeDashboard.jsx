@@ -23,16 +23,17 @@ export default function EmployeeDashboard() {
           headers: { Authorization: `Bearer ${token}` },
           
         });
-        console.log("Fetching employee from:", `http://localhost:5000/api/employees/${employeeId}`);
+        // console.log("Fetching employee from:", `http://localhost:5000/api/employees/${employeeId}`);
 
         if (!response.ok) {
           throw new Error(`Error: ${response.statusText}`);
         }
 
         const data = await response.json();
-        console.log("Received Employee Data:", data);
-        setEmployee(data);
-        setProfilePicture(data.profilePic || "/default-placeholder.png");
+        // console.log("Received Employee Data:", data);
+        const employeeData = Array.isArray(data) ? data[0] : data;
+        setEmployee(employeeData);
+        setProfilePicture(employeeData.profilePic || "/default-placeholder.png");
       } catch (error) {
         console.error("Error fetching employee:", error.message);
       }
@@ -62,30 +63,33 @@ export default function EmployeeDashboard() {
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to upload profile picture");
-      }
+      if (!response.ok) throw new Error("Upload failed");
 
-      const data = await response.json();
-      setProfilePicture(data.profilePic);
+      const data = await response.json();      setProfilePicture(data.profilePic);
       setEmployee((prev) => ({ ...prev, profilePic: data.profilePic }));
-    } catch (error) {
-      console.error("Error uploading profile picture:", error);
+    } catch (err) {
+      console.error(" Profile picture upload failed:", err.message);
     }
   };
+
+  if (!employee) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <p className="text-xl text-gray-600">Loading your dashboard...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen">
       <EmployeeSidebar employee={employee} />
 
-       {/* Main Content */}
        <div className="flex-1 p-8">
        <h2 className="text-2xl font-bold mb-4 text-gray-800">
-          Hello, {employee && employee.firstName ? `${employee.firstName} ${employee.lastName}` : "Employee"} 👋
-        </h2>
+        Hello, {employee.firstName} {employee.lastName} 👋
+       </h2>
 
         <div className="flex items-center mb-6">
-          {/* Profile Picture */}
           <div className="relative">
             <label htmlFor="profile-upload">
               <img
@@ -106,8 +110,7 @@ export default function EmployeeDashboard() {
           {/* Welcome Message */}
           <div className="ml-4">
             <h2 className="text-3xl font-bold mb-2">
-              🎉 Welcome, {employee ? `${employee.firstName} ${employee.lastName}` : "Employee"}! To Your Dashboard 🎉
-            </h2>
+            🎉 Welcome, {employee.firstName} {employee.lastName} ! 🎉            </h2>
             <p className="text-gray-600">We're thrilled to have you here! 🚀</p>
           </div>
         </div>

@@ -9,6 +9,7 @@ const path = require("path");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const employeeRoutes = require("./routes/employeeRoutes");
+const attendanceRoutes = require("./routes/attendanceRoutes");
 const db = require("./db");
 
 const app = express();
@@ -18,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use("/api/employees", require("./routes/employeeRoutes"));
-app.use("/api/attendance", require("./routes/employeeRoutes"));
+app.use("/api/attendance", require("./routes/attendanceRoutes"));
 
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
