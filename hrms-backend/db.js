@@ -1,4 +1,5 @@
 const mysql = require("mysql2/promise");
+require("dotenv").config();
 
 const pool = mysql.createPool({
   host: "brske8exqz6yt5vn3dwc-mysql.services.clever-cloud.com",

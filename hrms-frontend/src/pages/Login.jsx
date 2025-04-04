@@ -11,43 +11,32 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-
     try {
       const response = await fetch("http://localhost:5000/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password,
-          role: isAdmin ? "admin" : "employee",
-        }),
+        body: JSON.stringify({ email, password, role: isAdmin ? "admin" : "employee" }),
       });
-
+  
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Login failed");
-      }
-
-      // Store token & role in localStorage
+      if (!response.ok) throw new Error(data.message || "Login failed");
+  
+      // 🔹 Store token, role, and employeeId
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
-
-      // Navigate to correct dashboard
-      if (data.role === "admin") {
-        navigate("/admin-dashboard");
-      } else {
-        navigate("/employee-dashboard");
+      if (data.employeeId) {
+        localStorage.setItem("employeeId", data.employeeId);
       }
+  
+      navigate(data.role === "admin" ? "/admin-dashboard" : "/employee-dashboard");
     } catch (err) {
       setError(err.message);
     }
-  };
+  };  
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
-        {/* Toggle Button for Admin & Employee Login */}
         <div className="flex justify-center mb-6">
           <button
             className={`w-1/2 py-2 font-semibold rounded-l-lg transition ${
@@ -74,7 +63,6 @@ export default function Login() {
         {error && <p className="text-red-500 text-sm text-center mt-2">{error}</p>}
 
         <form onSubmit={handleLogin} className="mt-4">
-          {/* Email Input */}
           <div>
             <label className="block text-gray-600 text-sm font-semibold mb-1">
               Email
@@ -89,7 +77,6 @@ export default function Login() {
             />
           </div>
 
-          {/* Password Input */}
           <div className="mt-4">
             <label className="block text-gray-600 text-sm font-semibold mb-1">
               Password
@@ -104,14 +91,12 @@ export default function Login() {
             />
           </div>
 
-          {/* Forgot Password */}
           <div className="text-right mt-2">
             <a href="/forgot-password" className="text-purple-600 text-sm hover:underline">
               Forgot Password?
             </a>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             className="w-full mt-6 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition"
@@ -119,6 +104,20 @@ export default function Login() {
             Login
           </button>
         </form>
+        {!isAdmin && (
+          <div className="mt-4 text-center">
+            <p className="text-gray-600 text-sm">
+              Don't have an account?{" "}
+              <a
+                href="/register"
+                className="text-purple-600 font-semibold hover:underline"
+              >
+                Create New Account
+              </a>
+            </p>
+          </div>
+        )}
+
       </div>
     </div>
   );

@@ -11,7 +11,6 @@ const HolidayPage = () => {
     name: '',
   });
 
-  // Function to get the day of the week from the selected date
   const getDayOfWeek = (date) => {
     const daysOfWeek = [
       'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
@@ -20,7 +19,6 @@ const HolidayPage = () => {
     return daysOfWeek[selectedDate.getDay()];
   };
 
-  // Handle date change and automatically set the day of the week
   const handleDateChange = (e) => {
     const selectedDate = e.target.value;
     const dayOfWeek = getDayOfWeek(selectedDate);
@@ -45,7 +43,16 @@ const HolidayPage = () => {
     }
   };
 
-  // Fetch holidays from the backend
+  const handleDeleteAllHolidays = async () => {
+    try {
+      const response = await axios.delete('http://localhost:5000/api/holidays');
+      setHolidays([]); 
+    } catch (error) {
+      console.error('Error deleting all holidays:', error.response?.data || error.message);
+    }
+  };
+  
+
   useEffect(() => {
     const fetchHolidays = async () => {
       try {
@@ -59,21 +66,19 @@ const HolidayPage = () => {
     fetchHolidays();
   }, []);
 
-  // Handle search query change
   const filteredHolidays = holidays.map(holiday => {
     const holidayDate = new Date(holiday.date);
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Remove time for accurate comparison
-  
+    today.setHours(0, 0, 0, 0); 
     return {
       ...holiday,
       status: holidayDate >= today ? 'Upcoming' : 'Past'
     };
   });
 
+
   return (
     <div className="p-6">
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
       <h2 className="text-2xl font-bold mb-4">Holidays</h2>
         <button
@@ -98,7 +103,7 @@ const HolidayPage = () => {
             <input
               type="date"
               value={newHoliday.date}
-              onChange={handleDateChange} // Handle date selection and set day automatically
+              onChange={handleDateChange} 
               className="border px-4 py-2 rounded"
             />
             <input
@@ -117,17 +122,6 @@ const HolidayPage = () => {
           </div>
         </div>
       )}
-
-      {/* Search Bar
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search holidays..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="border px-4 py-2 rounded w-full"
-        />
-      </div> */}
 
       {/* Holidays Table */}
       <div className="overflow-x-auto">
@@ -177,6 +171,13 @@ const HolidayPage = () => {
         <p className="text-sm">Past Holidays</p>
       </div>
     </div>
+    <button 
+      onClick={handleDeleteAllHolidays} 
+      className="bg-red-600 text-white px-4 py-2 rounded mt-4"
+    >
+      Delete All Holidays
+    </button>
+
     </div>
   );
 };

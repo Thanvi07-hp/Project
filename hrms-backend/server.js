@@ -8,14 +8,22 @@ const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const employeeRoutes = require("./routes/employeeRoutes");
+const db = require("./db");
 
 const app = express();
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));// Ensure Express can parse JSON
+app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
 
-const db = require("./db");
+app.use("/api/employees", require("./routes/employeeRoutes"));
+app.use("/api/attendance", require("./routes/employeeRoutes"));
+
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+
 
 
 // 🔹 JWT Middleware for Route Protection (Move this ABOVE all routes!)
@@ -30,10 +38,10 @@ const verifyToken = (req, res, next) => {
     });
 };
 
-// 🔹 Login Route (Admin & Employee)
+//Login Logic
 app.post("/api/login", async (req, res) => {
-    const { email, password } = req.body;
-    const table = "users";  // Ensure this table exists in your database
+    const { email, password, role } = req.body;
+    let table = role === "admin" ? "users" : "employees";  
 
     try {
         const [results] = await db.query(`SELECT * FROM ${table} WHERE email = ?`, [email]);
@@ -43,18 +51,22 @@ app.post("/api/login", async (req, res) => {
         }
 
         const user = results[0];
+
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
-        const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        const token = jwt.sign(
+            { id: user.id || user.employeeId, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        );
 
         res.json({ token, role: user.role });
 
     } catch (error) {
-        console.error("Database query error:", error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
 });
@@ -63,7 +75,7 @@ app.post("/api/login", async (req, res) => {
 // 🔹 Get All Employees (Move below verifyToken)
 app.get("/api/employees", async (req, res) => {
     try {
-        const [results] = await db.query("SELECT * FROM employees"); // Use `await`
+        const [results] = await db.query("SELECT * FROM employees"); 
         res.json(results);
     } catch (error) {
         console.error("Error fetching employees:", error);
@@ -74,10 +86,10 @@ app.get("/api/employees", async (req, res) => {
 // Multer setup for file uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, "uploads/"); // Store files in 'uploads' folder
+      cb(null, "uploads/"); 
     },
     filename: (req, file, cb) => {
-      cb(null, Date.now() + path.extname(file.originalname)); // Unique filename
+      cb(null, Date.now() + path.extname(file.originalname)); 
     },
   });
 
@@ -95,8 +107,8 @@ app.post(
   ]),
   async (req, res) => {
     try {
-        const employeeData = { ...req.body };  // Ensure parsing of form fields
-        console.log("Received Employee Data:", employeeData);
+        const employeeData = { ...req.body };  
+        // console.log("Received Employee Data:", employeeData);
 
 
       const {
@@ -105,7 +117,7 @@ app.post(
         department, designation, type, status, workingDays, joiningDate, role, attendance
       } = req.body;
 
-      // 🔴 Check required fields before proceeding
+      // Check required fields before proceeding
       if (!employeeData.firstName || !employeeData.lastName || !employeeData.email) {
         return res.status(400).json({ message: "Missing required fields" });
     }
@@ -145,6 +157,8 @@ app.post(
 app.get("/api/employees/:employeeId", async (req, res) => {
     try {
         const { employeeId } = req.params;
+        // console.log(employeeId);
+        
         const [results] = await db.query(`SELECT * FROM employees WHERE employeeId = ?`, [employeeId]);
 
         if (results.length === 0) {
@@ -153,16 +167,15 @@ app.get("/api/employees/:employeeId", async (req, res) => {
 
         res.json(results[0]);
     } catch (error) {
-        console.error("Error fetching employee:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 });
+
 
 //Delete Employee
 app.delete("/api/employees/:employeeId", async (req, res) => {
     try {
         const { employeeId } = req.params;
-        console.log("Attempting to delete Employee ID:", employeeId);
 
         const [result] = await db.query("DELETE FROM employees WHERE employeeId = ?", [employeeId]);
 
@@ -172,7 +185,6 @@ app.delete("/api/employees/:employeeId", async (req, res) => {
 
         res.json({ message: "Employee deleted successfully" });
     } catch (error) {
-        console.error("❌ Error deleting employee:", error.message);
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
 });
@@ -205,7 +217,6 @@ app.put("/api/employees/:employeeId", async (req, res) => {
 
         res.json({ message: "Employee updated successfully" });
     } catch (error) {
-        console.error("Error updating employee:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 });
@@ -223,7 +234,6 @@ app.get("/api/employees", async (req, res) => {
         const [results] = await db.query(query);
         res.json(results);
     } catch (err) {
-        console.error("Error fetching employees:", err);
         res.status(500).json({ error: "Database error" });
     }
 });
@@ -241,11 +251,9 @@ app.get("/api/get-attendance", async (req, res) => {
         const [rows] = await db.query(query);
         res.json(rows);
     } catch (err) {
-        console.error("Error fetching attendance:", err);
         res.status(500).json({ error: "Failed to fetch attendance" });
     }
 });
-
 
 // Mark Attendance
 app.post("/api/mark-attendance", async (req, res) => {
@@ -287,6 +295,7 @@ app.post("/api/mark-attendance", async (req, res) => {
 
 const fs = require("fs");
 const ExcelJS = require("exceljs");
+const { log } = require("console");
 
 // Export Attendance Data to Excel 
 app.get("/api/export-attendance", async (req, res) => {
@@ -366,65 +375,6 @@ app.get("/api/export-attendance", async (req, res) => {
     } catch (error) {
         console.error("Error exporting attendance:", error);
         res.status(500).json({ message: "Internal server error" });
-    }
-});
-
-//Tasks`
-app.post("/api/tasks", async (req, res) => {
-    const { title, description, dueDate, employee, assignedAt, status } = req.body;
-    const formattedDueDate = dueDate.split("T")[0];
-    const sql = "INSERT INTO tasks (title, description, dueDate, employee, assignedAt, status) VALUES (?, ?, ?, ?, ?, ?)";
-    
-    try {
-        const [result] = await db.query(sql, [title, description, formattedDueDate, employee, assignedAt, status]);
-        res.status(201).json({ id: result.insertId, ...req.body });
-    } catch (err) {
-        res.status(500).send(err);
-    }
-});
-
-// Fetch tasks
-app.get("/api/tasks", async (req, res) => {
-    try {
-        const [results] = await db.query("SELECT * FROM tasks");
-        res.json(results);
-    } catch (err) {
-        res.status(500).send(err);
-    }
-});
-
-// Update task status
-// Edit Task (PUT request)
-app.put("/api/tasks/:id", async (req, res) => {
-    const { title, description, dueDate, employee, status } = req.body;
-    const formattedDueDate = dueDate.split("T")[0]; // Ensure the dueDate is formatted correctly (YYYY-MM-DD)
-    const sql = "UPDATE tasks SET title = ?, description = ?, dueDate = ?, employee = ?, status = ? WHERE id = ?";
-    
-    try {
-        const [result] = await db.query(sql, [title, description, formattedDueDate, employee, status, req.params.id]);
-        
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "Task not found" });
-        }
-
-        res.json({ message: "Task updated", id: req.params.id });
-    } catch (err) {
-        res.status(500).send(err);
-    }
-});
-
-// Delete Task (DELETE request)
-app.delete("/api/tasks/:id", async (req, res) => {
-    try {
-        const [result] = await db.query("DELETE FROM tasks WHERE id = ?", [req.params.id]);
-        
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "Task not found" });
-        }
-
-        res.json({ message: "Task deleted" });
-    } catch (err) {
-        res.status(500).send(err);
     }
 });
 
@@ -615,38 +565,45 @@ app.get('/api/holidays/:id', async (req, res) => {
 
 // UPDATE: Update holiday status (Upcoming or Past)
 app.put('/api/holidays/:id/status', async (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
-  if (!['Upcoming', 'Past'].includes(status)) {
-    return res.status(400).json({ message: 'Invalid status' });
-  }
-
-  try {
-    const [result] = await promisePool.execute(
-      'UPDATE holidays SET status = ? WHERE id = ?',
-      [status, id]
-    );
-    if (result.affectedRows > 0) {
-      res.status(200).json({ message: 'Holiday status updated' });
-    } else {
-      res.status(404).json({ message: 'Holiday not found' });
+    const { id } = req.params;
+    const { status } = req.body;
+  
+    if (!['Upcoming', 'Past'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status' });
     }
-  } catch (err) {
-    res.status(500).json({ message: 'Error updating holiday status', error: err.message });
-  }
+  
+    try {
+      const [result] = await db.execute( // Changed from promisePool.execute
+        'UPDATE holidays SET status = ? WHERE id = ?',
+        [status, id]
+      );
+  
+      if (result.affectedRows > 0) {
+        res.status(200).json({ message: 'Holiday status updated' });
+      } else {
+        res.status(404).json({ message: 'Holiday not found' });
+      }
+    } catch (err) {
+      res.status(500).json({ message: 'Error updating holiday status', error: err.message });
+    }
+  });
+  
+
+//delete all
+app.delete('/api/holidays', async (req, res) => {
+    try {
+        const [result] = await db.execute('DELETE FROM holidays'); 
+        
+        // console.log("Deleted rows:", result.affectedRows);
+        res.status(200).json({ message: 'All holidays deleted successfully' });
+
+    } catch (error) {
+        // console.error('Error deleting holidays:', error.message);
+        res.status(500).json({ error: 'Failed to delete holidays' });
+    }
 });
 
-// DELETE: Delete a holiday by ID
-app.delete('/api/holidays/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    await db.query('DELETE FROM holidays WHERE id = ?', [id]);
-    res.status(200).json({ message: 'Holiday deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting holiday:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+
 
 // 🚀 Start Server
 
