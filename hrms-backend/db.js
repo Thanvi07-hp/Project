@@ -1,16 +1,16 @@
 const mysql = require("mysql2/promise");
+require("dotenv").config();
 
 const pool = mysql.createPool({
-  host: "brske8exqz6yt5vn3dwc-mysql.services.clever-cloud.com", // Clever Cloud Host
-  user: "ujkgatngxeqbgqtv", // Clever Cloud Username
-  password: "AOOMdJdnsyIaoCxsBrFa", // Clever Cloud Password
-  database: "brske8exqz6yt5vn3dwc", // Clever Cloud Database Name
-  port: 3306, // MySQL Default Port
+  host: "brske8exqz6yt5vn3dwc-mysql.services.clever-cloud.com",
+  user: "ujkgatngxeqbgqtv",
+  password: "AOOMdJdnsyIaoCxsBrFa",
+  database: "brske8exqz6yt5vn3dwc",
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit: 5,  
   queueLimit: 0,
 });
 
-console.log("✅ Connected to Clever Cloud MySQL!");
+console.log("✅ MySQL Connection Pool Ready!");
 
 module.exports = pool;
