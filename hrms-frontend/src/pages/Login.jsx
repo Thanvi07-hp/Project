@@ -11,25 +11,35 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+
+    const endpoint = isAdmin
+    ? "http://localhost:5000/api/login"
+    : "http://localhost:5000/api/employees/login";
+
     try {
-      const response = await fetch("http://localhost:5000/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, role: isAdmin ? "admin" : "employee" }),
-      });
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, role: isAdmin ? "admin" : "employee" }),
+    });
   
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Login failed");
   
       // 🔹 Store token, role, and employeeId
       localStorage.setItem("token", data.token);
-       localStorage.setItem("role", data.role);
+      localStorage.setItem("role", data.role || (isAdmin ? "admin" : "employee"));
+
+       // Clear old employeeId first
+        localStorage.removeItem("employeeId");
+
       if (data.employee && data.employee.employeeId) {
         localStorage.setItem("employeeId", data.employee.employeeId);
       }
+      console.log("Logged in user:", data.employee);
   
-      navigate(data.role === "admin" ? "/admin-dashboard" : "/employee-dashboard");
-    } catch (err) {
+      navigate(isAdmin ? "/admin-dashboard" : "/employee-dashboard");
+      } catch (err) {
       setError(err.message);
     }
   };  
