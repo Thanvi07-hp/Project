@@ -5,7 +5,7 @@ export const Table = ({ children, className = "" }) => {
 };
 
 export const TableHeader = ({ children }) => {
-  return <thead className="bg-gray-200">{children}</thead>;
+  return <thead className="dark:bg-gray-800 dark:text-white">{children}</thead>;
 };
 
 export const TableRow = ({ children, className = "" }) => {

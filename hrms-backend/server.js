@@ -235,10 +235,10 @@ app.get("/api/employees", async (req, res) => {
         const [results] = await db.query(query);
         res.json(results);
     } catch (err) {
+        console.error("Error fetching employees:", err);
         res.status(500).json({ error: "Database error" });
     }
 });
-
 
 // Get Attendance for Today
 app.get("/api/get-attendance", async (req, res) => {
@@ -252,6 +252,7 @@ app.get("/api/get-attendance", async (req, res) => {
         const [rows] = await db.query(query);
         res.json(rows);
     } catch (err) {
+        console.error("Error fetching attendance:", err);
         res.status(500).json({ error: "Failed to fetch attendance" });
     }
 });
@@ -293,10 +294,8 @@ app.post("/api/mark-attendance", async (req, res) => {
     }
 });
 
-
 const fs = require("fs");
 const ExcelJS = require("exceljs");
-const { log } = require("console");
 
 // Export Attendance Data to Excel 
 app.get("/api/export-attendance", async (req, res) => {
@@ -376,6 +375,38 @@ app.get("/api/export-attendance", async (req, res) => {
     } catch (error) {
         console.error("Error exporting attendance:", error);
         res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+app.get("/api/attendance/:employeeId", async (req, res) => {
+    try {
+        const { employeeId } = req.params;
+        const query = `
+            SELECT a.id, a.employeeId, e.firstName, e.lastName, a.status, a.check_in_time, a.date
+            FROM attendance a
+            JOIN employees e ON a.employeeId = e.employeeId
+            WHERE a.employeeId = ?;
+        `;
+        const [rows] = await db.query(query, [employeeId]);
+        res.json(rows);
+    } catch (err) {
+        console.error("Error fetching attendance:", err);
+        res.status(500).json({ error: "Failed to fetch attendance" });
+    }
+});
+app.get("/api/attendance", async (req, res) => {
+    try {
+        const query = `
+            SELECT a.id, a.employeeId, e.firstName, e.lastName, a.status, a.check_in_time, a.date
+            FROM attendance a
+            JOIN employees e ON a.employeeId = e.employeeId
+            ORDER BY a.date ASC, a.employeeId;
+        `;
+        const [rows] = await db.query(query);
+        res.json(rows);
+    } catch (err) {
+        console.error("Error fetching all attendance:", err);
+        res.status(500).json({ error: "Failed to fetch all attendance" });
     }
 });
 
@@ -605,6 +636,199 @@ app.delete('/api/holidays', async (req, res) => {
 });
 
 
+//Tasks
+app.post('/api/tasks', async (req, res) => {
+    const { task_name, task_description, employee_name, due_date, employeeId, status = 'pending' } = req.body;
+
+    // Convert employeeId to integer
+    const employeeIdInt = parseInt(employeeId, 10);
+
+    if (isNaN(employeeIdInt)) {
+        return res.status(400).json({ message: 'Invalid employeeId. It must be a valid integer.' });
+    }
+
+    try {
+        // Insert task into the database
+        const [result] = await db.query(
+            'INSERT INTO tasks (task_name, task_description, employee_name, employee_id, due_date, status) VALUES (?, ?, ?, ?, ?, ?)',
+            [task_name, task_description, employee_name, employeeIdInt, due_date, status]
+        );
+        
+        res.status(201).json({ id: result.insertId, message: 'Task added successfully' });
+    } catch (error) {
+        console.error('Error adding task:', error);
+        res.status(500).json({ message: 'Error adding task', error });
+    }
+});
+
+app.get('/api/tasks', async (req, res) => {
+    try {
+        // Query the database to get all tasks along with the employee details
+        const [tasks] = await db.query(`
+            SELECT t.*, e.firstName, e.lastName 
+            FROM tasks t
+            JOIN employees e ON t.employee_id = e.employeeId
+            WHERE t.status != 'failed'  -- Optional: you can filter out failed tasks if needed
+        `);
+
+        // Send the tasks as a response in JSON format
+        res.json(tasks);
+    } catch (error) {
+        console.error(error);
+        // Send an error response if something goes wrong
+        res.status(500).json({ message: 'Error fetching tasks', error });
+    }
+});
+
+app.get('/api/tasks/:taskId', async (req, res) => {
+    const { taskId } = req.params; // Extract taskId from the request parameters
+
+    // Validate taskId
+    const taskIdInt = parseInt(taskId, 10);
+    if (isNaN(taskIdInt)) {
+        return res.status(400).json({ message: 'Invalid taskId. It must be a valid integer.' });
+    }
+
+    try {
+        // Query the database for the task by ID
+        const [rows] = await db.query(
+            'SELECT * FROM tasks WHERE id = ?',
+            [taskIdInt]
+        );
+
+        // If no task is found, return a 404
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        // Send the task data as a response
+        res.json(rows[0]);
+    } catch (error) {
+        console.error('Error fetching task:', error);
+        res.status(500).json({ message: 'Error fetching task', error });
+    }
+});
+
+app.get('/api/tasks/employee/:employeeId', async (req, res) => {
+    const { employeeId } = req.params; // Extract employeeId from the request parameters
+
+    // Validate employeeId
+    const employeeIdInt = parseInt(employeeId, 10);
+    if (isNaN(employeeIdInt)) {
+        return res.status(400).json({ message: 'Invalid employeeId. It must be a valid integer.' });
+    }
+
+    try {
+        // Query the database for tasks of a specific employee
+        const [tasks] = await db.query(`
+            SELECT t.*, e.firstName, e.lastName 
+            FROM tasks t
+            JOIN employees e ON t.employee_id = e.employeeId
+            WHERE t.employee_id = ? AND t.status != 'failed'
+        `, [employeeIdInt]);
+
+        // If no tasks are found, return a 404
+        if (tasks.length === 0) {
+            return res.status(404).json({ message: 'No tasks found for this employee.' });
+        }
+
+        // Send the tasks as a response
+        res.json(tasks);
+    } catch (error) {
+        console.error('Error fetching tasks for employee:', error);
+        res.status(500).json({ message: 'Error fetching tasks', error });
+    }
+});
+
+// Update Task
+app.put('/api/tasks/:taskId', async (req, res) => {
+    const { taskId } = req.params;
+    const { task_name, task_description, employee_name, due_date, employeeId } = req.body;
+
+    // Check if employeeId is provided and valid
+    if (!employeeId) {
+        return res.status(400).json({ message: 'Employee ID is required.' });
+    }
+
+    try {
+        // Update task in the database
+        const [result] = await db.query(
+            'UPDATE tasks SET task_name = ?, task_description = ?, employee_name = ?, due_date = ?, employee_id = ? WHERE id = ?',
+            [task_name, task_description, employee_name, due_date, employeeId, taskId]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        res.json({ message: 'Task updated successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error updating task', error });
+    }
+});
+
+// Route to delete a task
+app.delete('/api/tasks/:taskId', async (req, res) => {
+    const { taskId } = req.params;
+
+    try {
+        // Delete the task from the database
+        const [result] = await db.query('DELETE FROM tasks WHERE id = ?', [taskId]);
+
+        // If the task was deleted successfully
+        if (result.affectedRows > 0) {
+            res.json({ message: 'Task deleted successfully' });
+        } else {
+            res.status(404).json({ message: 'Task not found' });
+        }
+    } catch (error) {
+        console.error(error);
+        // Send error response if something goes wrong
+        res.status(500).json({ message: 'Error deleting task', error });
+    }
+});
+
+// Route to mark a task as failed
+app.put('/api/tasks/:taskId/fail', async (req, res) => {
+    const { taskId } = req.params;
+
+    try {
+        // Update the task's status to 'failed'
+        const [result] = await db.query('UPDATE tasks SET status = "failed" WHERE id = ?', [taskId]);
+
+        // If the task was updated successfully
+        if (result.affectedRows > 0) {
+            res.json({ message: 'Task marked as failed' });
+        } else {
+            res.status(404).json({ message: 'Task not found' });
+        }
+    } catch (error) {
+        console.error(error);
+        // Send error response if something goes wrong
+        res.status(500).json({ message: 'Error updating task status', error });
+    }
+});
+
+// Route to fetch all failed tasks
+app.get('/api/failed-tasks', async (req, res) => {
+    try {
+        // Query the database to get all tasks where status is 'failed'
+        const [failedTasks] = await db.query(`
+            SELECT t.*, e.firstName, e.lastName 
+            FROM tasks t
+            JOIN employees e ON t.employee_id = e.employeeId
+            WHERE t.status = 'failed'
+        `);
+
+        // Send the failed tasks as a response in JSON format
+        res.json(failedTasks);
+    } catch (error) {
+        console.error(error);
+        // Send an error response if something goes wrong
+        res.status(500).json({ message: 'Error fetching failed tasks', error });
+    }
+});
 
 // 🚀 Start Server
 

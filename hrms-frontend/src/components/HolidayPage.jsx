@@ -85,7 +85,7 @@ const HolidayPage = () => {
           onClick={() => setIsAddingHoliday(!isAddingHoliday)}
           className="bg-blue-600 text-white px-4 py-2 rounded"
         >
-          {isAddingHoliday ? 'Cancel' : 'Add New Holiday'}
+          {isAddingHoliday ? 'Cancel' : '+ Add New Holiday'}
         </button>
       </div>
 
@@ -126,7 +126,7 @@ const HolidayPage = () => {
       {/* Holidays Table */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-200">
-          <thead className="bg-gray-100">
+          <thead className="dark:bg-gray-900 dark:text-white">
             <tr>
               <th className="p-2 border text-left">Date</th>
               <th className="p-2 border text-left">Day</th>
@@ -147,7 +147,7 @@ const HolidayPage = () => {
                 <tr key={index} className="border-b relative">
                   <td className="p-2 border relative">
                   {status === 'Upcoming' && <div className="absolute left-0 top-0 h-full w-[3px] bg-blue-500"></div>}
-                  {status === 'Past' && <div className="absolute left-0 top-0 h-full w-[3px] bg-gray-400"></div>}
+                  {status === 'Past' && <div className="absolute left-0 top-0 h-full w-[3px] bg-orange-400"></div>}
                   {holiday.date.split('T')[0]} 
                   </td>
                   <td className="p-2 border">{holiday.day}</td>
@@ -167,7 +167,7 @@ const HolidayPage = () => {
         <p className="text-sm">Upcoming Holidays</p>
       </div>
       <div className="flex items-center">
-        <div className="w-3 h-3 bg-gray-400 rounded-full mr-2"></div>
+        <div className="w-3 h-3 bg-orange-400 rounded-full mr-2"></div>
         <p className="text-sm">Past Holidays</p>
       </div>
     </div>

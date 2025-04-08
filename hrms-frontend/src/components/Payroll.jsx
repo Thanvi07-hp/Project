@@ -97,9 +97,9 @@ const Payroll = () => {
       </button>
 
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse border border-gray-200">
+        <table className="w-full border-collapse border border-gray-200 ">
           <thead>
-            <tr className="bg-gray-100">
+            <tr className="dark:bg-gray-900 dark:text-white">
               <th className="p-2 border">Employee</th>
               <th className="p-2 border">CTC</th>
               <th className="p-2 border">Salary Per Month</th>
@@ -113,7 +113,7 @@ const Payroll = () => {
             {employees.map((emp) => (
               <tr key={emp.employeeId} className="border">
                 <td className="p-2 border flex items-center">
-                  <img src={emp.profilePic || "default-profile.png"} alt="Profile" className="w-8 h-8 rounded-full mr-2" />
+                  <img src={emp.profilePic || "/assets/default-avatar.jpg"} alt="Profile" className="w-8 h-8 rounded-full mr-2" />
                   {emp.firstName} {emp.lastName}
                 </td>
                 <td className="p-2 border">₹{payrollData[emp.employeeId]?.salary ? payrollData[emp.employeeId].salary * 12 : "N/A"}</td>
@@ -122,7 +122,7 @@ const Payroll = () => {
                     type="number" 
                     value={payrollData[emp.employeeId]?.salary || ""}
                     onChange={(e) => handleInputChange(emp.employeeId, "salary", e.target.value)}
-                    className="border px-2 py-1 w-20"
+                    className="border px-2 py-1 w-20 dark:bg-gray-900 dark:text-white"
                   />
                 </td>
                 <td className="p-2 border">
@@ -130,7 +130,7 @@ const Payroll = () => {
                     type="number" 
                     value={payrollData[emp.employeeId]?.TDS || ""}
                     onChange={(e) => handleInputChange(emp.employeeId, "TDS", e.target.value)}
-                    className="border px-2 py-1 w-20"
+                    className="border px-2 py-1 w-20 dark:bg-gray-900 dark:text-white"
                   />
                 </td>
                 <td className="p-2 border">
@@ -138,14 +138,14 @@ const Payroll = () => {
                     type="number" 
                     value={payrollData[emp.employeeId]?.Advance || ""}
                     onChange={(e) => handleInputChange(emp.employeeId, "Advance", e.target.value)}
-                    className="border px-2 py-1 w-20"
+                    className="border px-2 py-1 w-20 dark:bg-gray-900 dark:text-white"
                   />
                 </td>
                 <td className="p-2 border">
                   <select 
                     value={payrollData[emp.employeeId]?.status} 
                     onChange={(e) => handleInputChange(emp.employeeId, "status", e.target.value)}
-                    className="border px-2 py-1"
+                    className="border px-2 py-1 dark:bg-gray-900 dark:text-white"
                   >
                     <option value="Pending">Pending</option>
                     <option value="Completed">Completed</option>

@@ -93,7 +93,7 @@ export default function Login() {
             </label>
             <input
               type="password"
-              placeholder="********"
+              placeholder=""
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

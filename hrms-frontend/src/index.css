@@ -1,3 +1,18 @@
+/* src/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  @apply transition-colors duration-300;
+}
+
+/* Default light theme */
+body {
+  @apply bg-light-background text-light-text;
+}
+
+/* Dark theme override */
+.dark body {
+  @apply bg-dark-background text-dark-text;
+}
