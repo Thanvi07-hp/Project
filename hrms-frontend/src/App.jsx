@@ -6,21 +6,31 @@ import AllEmployees from "./pages/AllEmployees";
 import AddEmployee from "./pages/AddEmployee";
 import ForgotPassword from "./pages/ForgotPassword";
 import VerifyOTP from "./pages/VerifyOTP";
+import Payroll from "./components/Payroll";
 import EditEmployee from "./components/EditEmployee";
 import EmployeeManagement from "./pages/EmployeeManagement";
 import Attendance from "./components/Attendance";
 import { ToastContainer } from "react-toastify";
+import HolidayPage from "./components/HolidayPage";
 import Task from "./pages/Task";
 import "react-toastify/dist/ReactToastify.css";
+import ThemeToggle from "./components/ui/ThemeToggle";
+
 
 function App() {
+  
+  
   return (
     <Router>
+        
+      
       <div className="flex">
-        <Sidebar /> {/* Sidebar added to all pages */}
+        <Sidebar  />
+        {/* Sidebar added to all pages */}
 
         {/* Main content section */}
         <div className="flex-1 p-4">
+        <ThemeToggle />
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -31,6 +41,8 @@ function App() {
         <Route path="/edit-employee/:employeeId" element={<EditEmployee />} />
         <Route path="/employee-management/:id" element={<EmployeeManagement />} />
         <Route path="/attendance" element={<Attendance />} />
+        <Route path="/payroll" element={<Payroll />} />
+        <Route path="/holidays" element={<HolidayPage />} />
         <Route path="/task" element={<Task />} /> 
         </Routes>
         </div>

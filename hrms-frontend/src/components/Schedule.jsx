@@ -47,9 +47,7 @@ export default function Schedule({ darkMode }) {
 
   return (
     <div
-      className={`p-4 rounded-lg shadow-md transition-all duration-300 ${
-        darkMode ? "bg-gray-900 text-white" : "bg-white text-black"
-      }`}
+      className={`p-9 rounded-lg shadow-md transition-all duration-300 dark:bg-gray-900 dark:text-white`}
     >
       {/* Header */}
       <h3 className="text-lg font-bold mb-2">My Schedule</h3>
