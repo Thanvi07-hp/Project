@@ -15,6 +15,9 @@ import EmployeeManagement from "./pages/EmployeeManagement";
 import Attendance from "./components/Attendance";
 import EmployeeProfileEdit from "./pages/EmployeeProfileEdit";
 import EmployeeAttendance from "./components/EmployeeAttendance";
+import EmployeePayroll from "./components/EmployeePayroll";
+import EmployeeHolidays from "./components/EmployeeHolidays";
+
 import { ToastContainer } from "react-toastify";
 
 import HolidayPage from "./components/HolidayPage";
@@ -46,7 +49,9 @@ function MainContent() {
     "/forgot-password",
     "/verify-otp",
     "/employee-dashboard",
-    "/emp-attendance"
+    "/emp-attendance",
+    "/emp-payroll",
+    "/emp-holidays"
 
   ];
   const shouldHideSidebar = hideSidebarRoutes.includes(location.pathname) ||
@@ -74,7 +79,9 @@ function MainContent() {
           <Route path="/payroll" element={<Payroll />} />
           <Route path="/holidays" element={<HolidayPage />} />
           <Route path="/edit-profile/:id" element={<EmployeeProfileEdit />} />
-          <Route path="/emp-attendance" element={<EmployeeAttendance />} />          
+          <Route path="/emp-attendance" element={<EmployeeAttendance />} /> 
+          <Route path="/emp-payroll" element={<EmployeePayroll />} />
+          <Route path="/emp-holidays" element={<EmployeeHolidays />} />
           </Routes>
       </div>
     </div>

@@ -32,7 +32,7 @@ export default function EmployeeSidebar({ employee }) {
           <li className={`py-2 cursor-pointer ${isActive("/emp-payroll")}`} onClick={() => navigate("/emp-payroll")}>
             Payroll
           </li>
-          <li className={`py-2 cursor-pointer ${isActive("/holidays")}`} onClick={() => navigate("/holidays")}>
+          <li className={`py-2 cursor-pointer ${isActive("/emp-holidays")}`} onClick={() => navigate("/emp-holidays")}>
             Holidays
           </li>
         </ul>

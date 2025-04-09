@@ -216,6 +216,26 @@ router.post("/upload-profile-pic", upload.single("profilePic"), async (req, res)
   }
 });
 
+// Get Payroll Details for a Specific Employee
+router.get("/payroll/:employeeId", async (req, res) => {
+  const { employeeId } = req.params;
+
+  try {
+    const [rows] = await db.execute(
+      "SELECT salary, TDS, Advance, status, updated_at FROM payroll WHERE employeeId = ? ORDER BY updated_at DESC LIMIT 1",
+      [employeeId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Payroll not found for this employee" });
+    }
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error("Error fetching payroll:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 
 module.exports = router;

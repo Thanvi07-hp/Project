@@ -410,6 +410,7 @@ app.get("/api/attendance", async (req, res) => {
     }
 });
 
+// PAYROLL!!
 
 //  Fetch all payroll records (Ensure all employees are included)
 app.get("/api/payroll", async (req, res) => {
