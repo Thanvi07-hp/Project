@@ -51,7 +51,8 @@ function MainContent() {
     "/employee-dashboard",
     "/emp-attendance",
     "/emp-payroll",
-    "/emp-holidays"
+    "/emp-holidays",
+    "/emp-task"
 
   ];
   const shouldHideSidebar = hideSidebarRoutes.includes(location.pathname) ||

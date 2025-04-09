@@ -46,7 +46,8 @@ app.post("/api/login", async (req, res) => {
 
     try {
         const [results] = await db.query(`SELECT * FROM ${table} WHERE email = ?`, [email]);
-
+        console.log("Trying login with:", email, password);
+        console.log("Stored hash:", user.password);
         if (results.length === 0) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
@@ -85,73 +86,163 @@ app.get("/api/employees", async (req, res) => {
 });
 
 // Multer setup for file uploads
+// const storage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//       cb(null, "uploads/"); 
+//     },
+//     filename: (req, file, cb) => {
+//       cb(null, Date.now() + path.extname(file.originalname)); 
+//     },
+//   });
+
+//   const upload = multer({ storage });
+
+// To Add Employee
+// app.post(
+//   "/api/employees",
+//   upload.fields([
+//     { name: "profilePic", maxCount: 1 },
+//     { name: "aadharCard", maxCount: 1 },
+//     { name: "appointmentLetter", maxCount: 1 },
+//     { name: "otherDocument1", maxCount: 1 },
+//     { name: "otherDocument2", maxCount: 1 },
+//   ]),
+//   async (req, res) => {
+//     try {
+//         const employeeData = { ...req.body };  
+//         // console.log("Received Employee Data:", employeeData);
+
+
+//       const {
+//         firstName, lastName, mobile, email, dob, maritalStatus, gender,
+//         nationality, address, city, state, zip, employeeId, userName,
+//         department, designation, type, status, workingDays, joiningDate, role, attendance
+//       } = req.body;
+
+//       // Check required fields before proceeding
+//       if (!employeeData.firstName || !employeeData.lastName || !employeeData.email) {
+//         return res.status(400).json({ message: "Missing required fields" });
+//     }
+
+//       const profilePic = req.files["profilePic"] ? req.files["profilePic"][0].path : null;
+//       const aadharCard = req.files["aadharCard"] ? req.files["aadharCard"][0].path : null;
+//       const appointmentLetter = req.files["appointmentLetter"] ? req.files["appointmentLetter"][0].path : null;
+//       const otherDocument1 = req.files["otherDocument1"] ? req.files["otherDocument1"][0].path : null;
+//       const otherDocument2 = req.files["otherDocument2"] ? req.files["otherDocument2"][0].path : null;
+
+//       const query = `INSERT INTO employees (
+//         firstName, lastName, mobile, email, dob, maritalStatus, gender, nationality,
+//         address, city, state, zip, employeeId, userName, department, designation, type,
+//         status, workingDays, joiningDate, role, attendance, profilePic, aadharCard,
+//         appointmentLetter, otherDocument1, otherDocument2, created_at
+//       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`;
+
+//       const values = [
+//         firstName, lastName, mobile, email, dob, maritalStatus, gender,
+//         nationality, address, city, state, zip, employeeId, userName,
+//         department, designation, type, status, workingDays, joiningDate,
+//         role, attendance, profilePic, aadharCard, appointmentLetter,
+//         otherDocument1, otherDocument2
+//       ];
+//       await db.query(query, values);
+//         res.status(201).json({ message: "Employee added successfully" });
+
+//     } catch (error) {
+//         console.error("Server error:", error);
+//         res.status(500).json({ message: "Internal server error" });
+//     }
+//   }
+// );
+app.use('/uploads', express.static('uploads'));
+
+// Multer configuration
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, "uploads/"); 
+    destination: function (req, file, cb) {
+      cb(null, "uploads/"); // Make sure this folder exists
     },
-    filename: (req, file, cb) => {
-      cb(null, Date.now() + path.extname(file.originalname)); 
+    filename: function (req, file, cb) {
+      const ext = path.extname(file.originalname);
+      cb(null, `${file.fieldname}-${Date.now()}${ext}`);
     },
   });
 
   const upload = multer({ storage });
 
-// To Add Employee
-app.post(
-  "/api/employees",
-  upload.fields([
-    { name: "profilePic", maxCount: 1 },
-    { name: "aadharCard", maxCount: 1 },
-    { name: "appointmentLetter", maxCount: 1 },
-    { name: "otherDocument1", maxCount: 1 },
-    { name: "otherDocument2", maxCount: 1 },
-  ]),
-  async (req, res) => {
-    try {
-        const employeeData = { ...req.body };  
-        // console.log("Received Employee Data:", employeeData);
 
 
-      const {
-        firstName, lastName, mobile, email, dob, maritalStatus, gender,
-        nationality, address, city, state, zip, employeeId, userName,
-        department, designation, type, status, workingDays, joiningDate, role, attendance
-      } = req.body;
+  //password 
+// const firstName = req.body.firstName;
+// const password = `${firstName}123`;
+// const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Check required fields before proceeding
-      if (!employeeData.firstName || !employeeData.lastName || !employeeData.email) {
-        return res.status(400).json({ message: "Missing required fields" });
-    }
 
-      const profilePic = req.files["profilePic"] ? req.files["profilePic"][0].path : null;
-      const aadharCard = req.files["aadharCard"] ? req.files["aadharCard"][0].path : null;
-      const appointmentLetter = req.files["appointmentLetter"] ? req.files["appointmentLetter"][0].path : null;
-      const otherDocument1 = req.files["otherDocument1"] ? req.files["otherDocument1"][0].path : null;
-      const otherDocument2 = req.files["otherDocument2"] ? req.files["otherDocument2"][0].path : null;
+  // Add employee route
+  
+  app.post(
+    "/api/employees",
+    upload.fields([
+      { name: "profilePic", maxCount: 1 },
+      { name: "aadharCard", maxCount: 1 },
+      { name: "appointmentLetter", maxCount: 1 },
+      { name: "otherDocument1", maxCount: 1 },
+      { name: "otherDocument2", maxCount: 1 },
+    ]),
+    async (req, res) => {
+      try {
 
-      const query = `INSERT INTO employees (
-        firstName, lastName, mobile, email, dob, maritalStatus, gender, nationality,
-        address, city, state, zip, employeeId, userName, department, designation, type,
-        status, workingDays, joiningDate, role, attendance, profilePic, aadharCard,
-        appointmentLetter, otherDocument1, otherDocument2, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`;
+        console.log(" New employee submission received");
 
-      const values = [
-        firstName, lastName, mobile, email, dob, maritalStatus, gender,
-        nationality, address, city, state, zip, employeeId, userName,
-        department, designation, type, status, workingDays, joiningDate,
-        role, attendance, profilePic, aadharCard, appointmentLetter,
-        otherDocument1, otherDocument2
-      ];
-      await db.query(query, values);
-        res.status(201).json({ message: "Employee added successfully" });
+        const employeeData = { ...req.body };
+        const {
+          firstName, lastName, mobile, email, dob, maritalStatus, gender,
+          nationality, address, city, state, zip, userName,
+          department, designation, type, status, workingDays, joiningDate, role,
+          attendance
+        } = employeeData;
 
-    } catch (error) {
-        console.error("Server error:", error);
+        console.log("Employee Data:", employeeData);
+  
+        if (!firstName || !lastName || !email ) {
+          return res.status(400).json({ message: "Missing required fields" });
+        }
+// Set auto-generated password
+const rawPassword = firstName.trim() + "123";
+const hashedPassword = await bcrypt.hash(rawPassword, 10);
+
+
+        // File uploads
+        const profilePic = req.files["profilePic"] ? req.files["profilePic"][0].path : null;
+        const aadharCard = req.files["aadharCard"] ? req.files["aadharCard"][0].path : null;
+        const appointmentLetter = req.files["appointmentLetter"] ? req.files["appointmentLetter"][0].path : null;
+        const otherDocument1 = req.files["otherDocument1"] ? req.files["otherDocument1"][0].path : null;
+        const otherDocument2 = req.files["otherDocument2"] ? req.files["otherDocument2"][0].path : null;
+  
+        const query = `INSERT INTO employees (
+            firstName, lastName, mobile, email, dob, maritalStatus, gender, nationality,
+            address, city, state, zip, userName, department, designation, type,
+            status, workingDays, joiningDate, role, attendance, password, profilePic,
+            aadharCard, appointmentLetter, otherDocument1, otherDocument2
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+          
+          const values = [
+            firstName, lastName, mobile, email, dob, maritalStatus, gender,
+            nationality, address, city, state, zip, userName, department,
+            designation, type, status, workingDays, joiningDate,
+            role, attendance, hashedPassword, profilePic, aadharCard,
+            appointmentLetter, otherDocument1, otherDocument2
+          ];      
+  
+        await db.query(query, values);
+  
+        res.status(201).json({ message: "Employee added successfully" ,
+            generatedPassword: rawPassword ,
+        });
+      } catch (error) {
+        console.error("Server error while adding employee:", error);
         res.status(500).json({ message: "Internal server error" });
+      }
     }
-  }
-);
+  );
 
 
 //GET route for a single employee
@@ -411,7 +502,6 @@ app.get("/api/attendance", async (req, res) => {
 });
 
 // PAYROLL!!
-
 //  Fetch all payroll records (Ensure all employees are included)
 app.get("/api/payroll", async (req, res) => {
   try {
