@@ -63,13 +63,13 @@ export default function EmployeeAttendance() {
   if (!employee) return <div>Loading...</div>;
   
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white">
       <EmployeeSidebar employee={employee} />
 
       <div className="flex-1 p-6">
         <h2 className="text-2xl font-semibold mb-6">My Attendance</h2>
 
-        <div className="mb-8 bg-white p-4 shadow-md rounded-lg">
+        <div className="mb-8 bg-white p-4 shadow-md rounded-lg dark:bg-gray-800 dark:text-gray-400">
           <h3 className="text-lg font-medium mb-4">Attendance Overview</h3>
 
           <ResponsiveContainer width="100%" height={300}>
@@ -82,11 +82,11 @@ export default function EmployeeAttendance() {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white p-4 shadow-md rounded-lg">
+        <div className="bg-white p-4 shadow-md rounded-lg dark:bg-gray-900 dark:text-white">
           <h3 className="text-lg font-medium mb-4">Attendance Records</h3>
           <table className="w-full table-auto border-collapse">
             <thead>
-              <tr className="bg-gray-100">
+              <tr className="bg-gray-100 dark:bg-gray-800">
                 <th className="border px-4 py-2">Date</th>
                 <th className="border px-4 py-2">Status</th>
                 <th className="border px-4 py-2">Check-in Time</th>

@@ -33,7 +33,7 @@ export default function EmployeeDashboard() {
         // console.log("Received Employee Data:", data);
         const employeeData = Array.isArray(data) ? data[0] : data;
         setEmployee(employeeData);
-        setProfilePicture(employeeData.profilePic || "/default-placeholder.png");
+        setProfilePicture(employeeData.profilePic || "/assets/default-avatar.jpg");
       } catch (error) {
         console.error("Error fetching employee:", error.message);
       }
@@ -85,7 +85,7 @@ export default function EmployeeDashboard() {
       <EmployeeSidebar employee={employee} />
 
        <div className="flex-1 p-8">
-       <h2 className="text-2xl font-bold mb-4 text-gray-800">
+       <h2 className="text-2xl font-bold mb-4 text-gray-800  dark:text-white">
         Hello, {employee.firstName} {employee.lastName} 👋
        </h2>
 
@@ -111,7 +111,7 @@ export default function EmployeeDashboard() {
           <div className="ml-4">
             <h2 className="text-3xl font-bold mb-2">
             🎉 Welcome, {employee.firstName} {employee.lastName} ! 🎉            </h2>
-            <p className="text-gray-600">We're thrilled to have you here! 🚀</p>
+            <p className="text-gray-600  dark:text-white">We're thrilled to have you here! 🚀</p>
           </div>
         </div>
       </div>

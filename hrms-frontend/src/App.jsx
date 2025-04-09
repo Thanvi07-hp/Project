@@ -55,8 +55,8 @@ function MainContent() {
   return (
     <div className="flex">
       {!shouldHideSidebar && <Sidebar />}
-        <ThemeToggle />
       <div className="flex-1 p-4">
+        <ThemeToggle />
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
