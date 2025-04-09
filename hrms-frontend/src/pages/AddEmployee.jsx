@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiSun, FiMoon } from "react-icons/fi";
+import { Form } from 'react-bootstrap';
 
 export default function AddEmployee() {
   const navigate = useNavigate();
@@ -84,14 +85,19 @@ export default function AddEmployee() {
     if (employee.appointmentLetter) formData.append("appointmentLetter", employee.appointmentLetter);
     if (employee.otherDocument1) formData.append("otherDocument1", employee.otherDocument1);
     if (employee.otherDocument2) formData.append("otherDocument2", employee.otherDocument2);
-
+    
+    console.log("Sending the following form data to backend:");
+    for (let pair of formData.entries()) {
+      console.log(`${pair[0]}:`, pair[1]);
+    }
+  
     try {
         const response = await fetch("http://localhost:5000/api/employees", {
             method: "POST",
             body: formData,
         });
 
-        console.log("Raw Response:", response);
+        console.log("Backend response:", response.data);
 
         if (!response.ok) {
             console.error("Response status:", response.status);
@@ -107,7 +113,11 @@ export default function AddEmployee() {
         const responseData = await response.json();
         console.log("Response Data:", responseData);
 
-        alert("Employee added successfully!");
+        if (responseData.generatedPassword) {
+          alert(`Employee added successfully!\nGenerated Password: ${responseData.generatedPassword}`);
+        } else {
+          alert("Employee added successfully!");
+        }
         navigate("/all-employees");
 
     } catch (error) {
@@ -161,8 +171,11 @@ export default function AddEmployee() {
                 <input type="text" name="lastName" placeholder="Last Name" onChange={handleChange} className="w-full p-2 border rounded" required />
                 <input type="text" name="mobile" placeholder="Mobile Number" onChange={handleChange} className="w-full p-2 border rounded" required />
                 <input type="email" name="email" placeholder="Email Address" onChange={handleChange} className="w-full p-2 border rounded" required />
-                <input type="date" name="dob" onChange={handleChange} className="w-full p-2 border rounded" required />
-            <select name="maritalStatus" onChange={handleChange} className="w-full p-2 border rounded">
+                <div className="flex flex-col">
+                    <label className="font-medium mb-1 text-sm text-gray-400">DOB</label>
+                    <input type="date" name="dob" onChange={handleChange} className="w-full p-2 border rounded" required />                
+                </div>
+              <select name="maritalStatus" onChange={handleChange} className="w-full p-2 border rounded">
               <option value="">Marital Status</option>
               <option value="Single">Single</option>
               <option value="Married">Married</option>
@@ -190,7 +203,7 @@ export default function AddEmployee() {
         {activeTab === "professional" && (
           <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-lg mt-4">
             <div className="grid grid-cols-2 gap-4">
-            <select name="type" value={employee.type} onChange={handleChange} required>
+            <select name="type" value={employee.type} onChange={handleChange} className="w-full p-2 border rounded" required>
                 <option value="">Select Employee Type</option>
                 <option value="Full-Time">Full-Time</option>
                 <option value="Part-Time">Part-Time</option>
@@ -208,7 +221,7 @@ export default function AddEmployee() {
                 <option value="6 Days">6 Days</option>
               </select>
               <div className="flex flex-col">
-                <label className="font-medium text-gray-700">Joining Date</label>
+                <label className="font-medium mb-1 text-sm text-gray-400">Joining Date</label>
                 <input type="date" name="joiningDate" onChange={handleChange} className="w-full p-2 border rounded" required />
               </div>
 
@@ -224,33 +237,32 @@ export default function AddEmployee() {
           <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-lg mt-4">
             <div className="grid grid-cols-2 gap-4">
             <div className="border p-4 rounded-lg text-center">
-                <label>Upload Aadhar Card</label>
+                <label>Upload Aadhar Card </label>
                 <div className="border-dashed border-2 p-6 rounded-lg mt-2">
-                  <input type="file" onChange={(e) => handleFileChange(e, "aadhar")} accept="image/jpeg, application/pdf" />
+                <input type="file" name="aadharCard" onChange={handleFileChange} accept="image/jpeg, application/pdf"/>
+                  <p className="text-gray-400 text-sm">Supported formats: Jpeg, pdf</p>
+                </div>
+              </div>
+              <div className="border p-4 rounded-lg text-center">
+                <label>Upload Appointment Letter </label>
+                <div className="border-dashed border-2 p-6 rounded-lg mt-2">
+                <input type="file" name="appointmentLetter" onChange={handleFileChange} accept="image/jpeg, application/pdf"/>
                   <p className="text-gray-400 text-sm">Supported formats: Jpeg, pdf</p>
                 </div>
               </div>
 
               <div className="border p-4 rounded-lg text-center">
-                <label>Upload Appointment Letter</label>
+                <label>Upload PAN Card </label>
                 <div className="border-dashed border-2 p-6 rounded-lg mt-2">
-                  <input type="file" onChange={(e) => handleFileChange(e, "appointmentLetter")} accept="image/jpeg, application/pdf" />
+                <input type="file" name="otherDocument1" onChange={handleFileChange} accept="image/jpeg, application/pdf"/>
                   <p className="text-gray-400 text-sm">Supported formats: Jpeg, pdf</p>
                 </div>
               </div>
 
               <div className="border p-4 rounded-lg text-center">
-                <label>Upload **********</label>
+                <label>Upload Other Document </label>
                 <div className="border-dashed border-2 p-6 rounded-lg mt-2">
-                  <input type="file" onChange={(e) => handleFileChange(e, "something")} accept="image/jpeg, application/pdf" />
-                  <p className="text-gray-400 text-sm">Supported formats: Jpeg, pdf</p>
-                </div>
-              </div>
-
-              <div className="border p-4 rounded-lg text-center">
-                <label>Upload ++++++++++</label>
-                <div className="border-dashed border-2 p-6 rounded-lg mt-2">
-                  <input type="file" onChange={(e) => handleFileChange(e, "some")} accept="image/jpeg, application/pdf" />
+                <input type="file" name="otherDocument2" onChange={handleFileChange} accept="image/jpeg, application/pdf"/>
                   <p className="text-gray-400 text-sm">Supported formats: Jpeg, pdf</p>
                 </div>
               </div>
