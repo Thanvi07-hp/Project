@@ -87,7 +87,7 @@ const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLa
         {/* Main Content */}
         <div className="flex-1 p-6">
           {/* Header */}
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center mb-6 ">
             <h1 className="text-2xl font-bold">All Employees</h1>
             <div className="flex space-x-4">
               <div className="relative">

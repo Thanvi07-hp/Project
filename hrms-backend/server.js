@@ -240,6 +240,7 @@ app.get("/api/employees", async (req, res) => {
     }
 });
 
+
 // Get Attendance for Today
 app.get("/api/get-attendance", async (req, res) => {
     try {
@@ -828,6 +829,40 @@ app.get('/api/failed-tasks', async (req, res) => {
         console.error(error);
         // Send an error response if something goes wrong
         res.status(500).json({ message: 'Error fetching failed tasks', error });
+    }
+});
+// Route to mark a task as completed
+// In your Express server, define a route to mark the task as completed
+app.put('/api/tasks/:taskId/complete', async (req, res) => {
+    const { taskId } = req.params;
+    try {
+        // Assuming Task is your model for tasks
+        const task = await Task.findByIdAndUpdate(taskId, { status: 'completed' }, { new: true });
+        res.json(task);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Failed to mark task as completed');
+    }
+});
+
+
+// Route to fetch all completed tasks
+app.get('/api/completed-tasks', async (req, res) => {
+    try {
+        // Query the database to get all tasks where status is 'completed'
+        const [completedTasks] = await db.query(`
+            SELECT t.*, e.firstName, e.lastName 
+            FROM tasks t
+            JOIN employees e ON t.employee_id = e.employeeId
+            WHERE t.status = 'completed'
+        `);
+
+        // Send the completed tasks as a response in JSON format
+        res.json(completedTasks);
+    } catch (error) {
+        console.error(error);
+        // Send an error response if something goes wrong
+        res.status(500).json({ message: 'Error fetching completed tasks', error });
     }
 });
 

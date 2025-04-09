@@ -23,7 +23,7 @@ export default function EmployeeSidebar({ employee }) {
           >
             Profile
           </li>
-          <li className={`py-2 cursor-pointer ${isActive("/emp-tasks")}`} onClick={() => navigate("/emp-tasks")}>
+          <li className={`py-2 cursor-pointer ${isActive("/emp-task")}`} onClick={() => navigate("/emp-task")}>
             Tasks
           </li>
           <li className={`py-2 cursor-pointer ${isActive("/emp-attendance")}`} onClick={() => navigate("/emp-attendance")}>

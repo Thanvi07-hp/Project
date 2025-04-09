@@ -21,7 +21,7 @@ export default function EmployeePayroll() {
   useEffect(() => {
     const fetchData = async () => {
       if (!employeeId) {
-        console.warn("⚠️ No employeeId found. Redirecting to login.");
+        console.warn("⚠ No employeeId found. Redirecting to login.");
         navigate("/login");
         return;
       }

@@ -18,12 +18,14 @@ import EmployeeAttendance from "./components/EmployeeAttendance";
 import EmployeePayroll from "./components/EmployeePayroll";
 import EmployeeHolidays from "./components/EmployeeHolidays";
 
+
 import { ToastContainer } from "react-toastify";
 
 import HolidayPage from "./components/HolidayPage";
 import Task from "./pages/Task";
 import "react-toastify/dist/ReactToastify.css";
 import ThemeToggle from "./components/ui/ThemeToggle";
+import EmployeeTask from "./components/EmployeeTask";
 
 
 function App() {
@@ -51,7 +53,8 @@ function MainContent() {
     "/employee-dashboard",
     "/emp-attendance",
     "/emp-payroll",
-    "/emp-holidays"
+    "/emp-holidays",
+    "/emp-task"
 
   ];
   const shouldHideSidebar = hideSidebarRoutes.includes(location.pathname) ||
@@ -82,6 +85,8 @@ function MainContent() {
           <Route path="/emp-attendance" element={<EmployeeAttendance />} /> 
           <Route path="/emp-payroll" element={<EmployeePayroll />} />
           <Route path="/emp-holidays" element={<EmployeeHolidays />} />
+          <Route path="/emp-task" element={<EmployeeTask />} />
+
           </Routes>
       </div>
     </div>

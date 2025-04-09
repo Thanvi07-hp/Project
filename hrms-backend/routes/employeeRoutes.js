@@ -217,6 +217,7 @@ router.post("/upload-profile-pic", upload.single("profilePic"), async (req, res)
 });
 
 // Get Payroll Details for a Specific Employee
+// Get Payroll Details for a Specific Employee
 router.get("/payroll/:employeeId", async (req, res) => {
   const { employeeId } = req.params;
 
