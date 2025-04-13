@@ -1,71 +1,76 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function VerifyOTP() {
+  const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleVerifyOTP = (e) => {
+  const handleVerify = async (e) => {
     e.preventDefault();
-    if (newPassword !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
+    setError("");
+
+    try {
+      const response = await fetch("http://localhost:5000/api/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "OTP verification failed");
+
+      alert("OTP verified successfully");
+      navigate("/reset-password", { state: { email } });
+    } catch (err) {
+      setError(err.message);
     }
-    console.log("OTP Verified, Password Updated!");
-    alert("Password reset successfully!");
   };
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-center text-gray-800">Verify OTP</h2>
+      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
+          Verify OTP
+        </h2>
 
-        <form onSubmit={handleVerifyOTP}>
-          {/* OTP Input */}
+        {error && <p className="text-red-500 text-sm text-center mb-2">{error}</p>}
+
+        <form onSubmit={handleVerify}>
           <div>
-            <label className="text-gray-600 text-sm">Enter OTP</label>
+            <label className="block text-gray-600 text-sm font-semibold mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              placeholder="your-email@example.com"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-gray-600 text-sm font-semibold mb-1">
+              OTP
+            </label>
             <input
               type="text"
-              placeholder="123456"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 mt-1"
+              placeholder="Enter OTP"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
               required
             />
           </div>
 
-          {/* New Password Input */}
-          <div className="mt-4">
-            <label className="text-gray-600 text-sm">New Password</label>
-            <input
-              type="password"
-              placeholder="********"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 mt-1"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          {/* Confirm Password Input */}
-          <div className="mt-4">
-            <label className="text-gray-600 text-sm">Confirm Password</label>
-            <input
-              type="password"
-              placeholder="********"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 mt-1"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full mt-6 bg-purple-500 text-white py-2 rounded-lg hover:bg-purple-600 transition"
+            className="w-full mt-6 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition"
           >
-            Reset Password
+            Verify OTP
           </button>
         </form>
       </div>

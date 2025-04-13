@@ -10,6 +10,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const employeeRoutes = require("./routes/employeeRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
+const otpRoutes = require("./routes/otpRoutes");
 const db = require("./db");
 
 const app = express();
@@ -21,10 +22,17 @@ app.use(cors());
 app.use("/api/employees", require("./routes/employeeRoutes"));
 app.use("/api/attendance", require("./routes/attendanceRoutes"));
 
+app.use(otpRoutes);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 
+
+// 
+
+//     console.log(`➡️ ${req.method} ${req.url}`);
+//     next();
+//   });
 
 
 // 🔹 JWT Middleware for Route Protection (Move this ABOVE all routes!)
@@ -42,37 +50,87 @@ const verifyToken = (req, res, next) => {
 //Login Logic
 app.post("/api/login", async (req, res) => {
     const { email, password, role } = req.body;
-    let table = role === "admin" ? "users" : "employees";  
-
+  
+    const validRoles = {
+      admin: "users",
+      employee: "employees"
+    };
+  
+    const table = validRoles[role];
+    if (!table) return res.status(400).json({ message: "Invalid role" });
+  
     try {
-        const [results] = await db.query(`SELECT * FROM ${table} WHERE email = ?`, [email]);
-        console.log("Trying login with:", email, password);
-        console.log("Stored hash:", user.password);
-        if (results.length === 0) {
-            return res.status(401).json({ message: "Invalid email or password" });
-        }
-
-        const user = results[0];
-
-        const isMatch = await bcrypt.compare(password, user.password);
-
-        if (!isMatch) {
-            return res.status(401).json({ message: "Invalid email or password" });
-        }
-
-        const token = jwt.sign(
-            { id: user.id || user.employeeId, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: "1h" }
-        );
-
-        res.json({ token, role: user.role });
-
+      const [results] = await db.query(`SELECT * FROM ${table} WHERE email = ?`, [email]);
+  
+      if (results.length === 0) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+  
+      const user = results[0];
+  
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+  
+      const token = jwt.sign(
+        { id: user.id || user.employeeId, role: user.role || role },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+      );
+  
+      res.json({
+        token,
+        role: user.role || role,
+        employee: table === "employees" ? user : null
+      });
+  
     } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
+      res.status(500).json({ message: "Server error", error: error.message });
     }
-});
+  });
 
+//Reset Password
+app.post("/api/reset-password-simple", async (req, res) => {
+    const { email, newPassword, userType } = req.body;
+
+//     console.log(" Password reset request received:");
+//   console.log("User Type:", userType);
+//   console.log("Email:", email);
+//   console.log("New Password (plaintext):", newPassword);
+  
+    try {
+      const table = userType === "admin" ? "admins" : "employees";
+  
+      const [rows] = await db.execute(`SELECT * FROM ${table} WHERE email = ?`, [email]);
+  
+      if (rows.length === 0) {
+        console.log(" No user found with email:", email);
+        return res.status(404).json({ message: "User not found." });
+      }
+  
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+  
+    //   console.log("Hashed password:", hashedPassword);
+
+
+      await db.execute(`UPDATE ${table} SET password = ? WHERE email = ?`, [
+        hashedPassword,
+        email,
+      ]);
+  
+      res.status(200).json({ message: "Password updated successfully." });
+  
+    } catch (error) {
+      console.error("Reset error:", error);
+      res.status(500).json({ message: "Internal server error." });
+    }
+  });
+
+
+
+  
+  
 
 // 🔹 Get All Employees (Move below verifyToken)
 app.get("/api/employees", async (req, res) => {
@@ -920,6 +978,8 @@ app.get('/api/failed-tasks', async (req, res) => {
         res.status(500).json({ message: 'Error fetching failed tasks', error });
     }
 });
+
+
 
 // 🚀 Start Server
 

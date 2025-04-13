@@ -9,52 +9,52 @@ const router = express.Router();
 const app = express();
 
 // Employee Registration
-router.post("/register", async (req, res) => {
-  const { firstName, lastName, email, employeeId, password } = req.body;
+// router.post("/register", async (req, res) => {
+//   const { firstName, lastName, email, employeeId, password } = req.body;
 
-  if (!firstName || !lastName || !email || !password) {
-    return res.status(400).json({ message: "All fields are required" });
-  }
+//   if (!firstName || !lastName || !email || !password) {
+//     return res.status(400).json({ message: "All fields are required" });
+//   }
 
-  try {
-    const [existing] = await db.execute("SELECT * FROM employees WHERE email = ?", [email]);
+//   try {
+//     const [existing] = await db.execute("SELECT * FROM employees WHERE email = ?", [email]);
 
-    if (existing.length > 0) {
-      const user = existing[0];
+//     if (existing.length > 0) {
+//       const user = existing[0];
     
-      const hasPassword =
-        user.password !== null &&
-        user.password !== undefined &&
-        user.password.trim() !== "";
+//       const hasPassword =
+//         user.password !== null &&
+//         user.password !== undefined &&
+//         user.password.trim() !== "";
     
-      if (hasPassword) {
-        return res.status(400).json({ message: "Email already registered" });
-      }
+//       if (hasPassword) {
+//         return res.status(400).json({ message: "Email already registered" });
+//       }
     
-      // Password is missing, so update the record
-      const hashedPassword = await bcrypt.hash(password, 10);
-      await db.execute(
-        "UPDATE employees SET firstName = ?, lastName = ?, password = ? WHERE email = ?",
-        [firstName, lastName, hashedPassword, email]
-      );
+//       // Password is missing, so update the record
+//       const hashedPassword = await bcrypt.hash(password, 10);
+//       await db.execute(
+//         "UPDATE employees SET firstName = ?, lastName = ?, password = ? WHERE email = ?",
+//         [firstName, lastName, hashedPassword, email]
+//       );
     
-      return res.status(200).json({ message: "Employee registration completed" });
-    }
+//       return res.status(200).json({ message: "Employee registration completed" });
+//     }
     
 
-    // Brand new user
-    const hashedPassword = await bcrypt.hash(password, 10);
-    await db.execute(
-      "INSERT INTO employees (firstName, lastName, email, password) VALUES (?, ?, ?, ?)",
-      [firstName, lastName, email, hashedPassword]
-    );
+//     // Brand new user
+//     const hashedPassword = await bcrypt.hash(password, 10);
+//     await db.execute(
+//       "INSERT INTO employees (firstName, lastName, email, password) VALUES (?, ?, ?, ?)",
+//       [firstName, lastName, email, hashedPassword]
+//     );
 
-    res.status(201).json({ message: "Employee registered successfully" });
-  } catch (error) {
-    console.error("Registration error:", error); 
-    res.status(500).json({ message: "Error registering employee", error: error.message });
-  }
-});
+//     res.status(201).json({ message: "Employee registered successfully" });
+//   } catch (error) {
+//     console.error("Registration error:", error); 
+//     res.status(500).json({ message: "Error registering employee", error: error.message });
+//   }
+// });
 
 
 // Employee Login
