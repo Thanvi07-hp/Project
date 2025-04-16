@@ -18,12 +18,14 @@ import EmployeeAttendance from "./components/EmployeeAttendance";
 import EmployeePayroll from "./components/EmployeePayroll";
 import EmployeeHolidays from "./components/EmployeeHolidays";
 
+
 import { ToastContainer } from "react-toastify";
 
 import HolidayPage from "./components/HolidayPage";
 import Task from "./pages/Task";
 import "react-toastify/dist/ReactToastify.css";
 import ThemeToggle from "./components/ui/ThemeToggle";
+import EmployeeTask from "./components/EmployeeTask";
 
 
 function App() {
@@ -61,8 +63,8 @@ function MainContent() {
   return (
     <div className="flex">
       {!shouldHideSidebar && <Sidebar />}
-        <ThemeToggle />
       <div className="flex-1 p-4">
+        <ThemeToggle />
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
@@ -83,6 +85,8 @@ function MainContent() {
           <Route path="/emp-attendance" element={<EmployeeAttendance />} /> 
           <Route path="/emp-payroll" element={<EmployeePayroll />} />
           <Route path="/emp-holidays" element={<EmployeeHolidays />} />
+          <Route path="/emp-task" element={<EmployeeTask />} />
+
           </Routes>
       </div>
     </div>

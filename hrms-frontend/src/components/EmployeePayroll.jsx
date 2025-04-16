@@ -21,7 +21,7 @@ export default function EmployeePayroll() {
   useEffect(() => {
     const fetchData = async () => {
       if (!employeeId) {
-        console.warn("⚠️ No employeeId found. Redirecting to login.");
+        console.warn("⚠ No employeeId found. Redirecting to login.");
         navigate("/login");
         return;
       }
@@ -51,19 +51,19 @@ export default function EmployeePayroll() {
   if (loading) return <div className="p-6">Loading payroll...</div>;
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
       <EmployeeSidebar employee={employee} />
 
       <div className="flex-1 p-6">
         <h2 className="text-2xl font-semibold mb-6">My Payroll</h2>
 
-        <div className="bg-white shadow rounded p-6">
+        <div className="bg-white shadow rounded p-6 dark:bg-gray-900">
           <h3 className="text-lg font-medium mb-4">💰 Payroll Details</h3>
 
           {payroll ? (
             <table className="w-full border border-gray-200 text-left">
               <thead>
-                <tr className="bg-gray-100">
+                <tr className="bg-gray-100 dark:bg-gray-800">
                   <th className="p-2">Date</th>
                   <th className="p-2">Salary</th>
                   <th className="p-2">TDS</th>

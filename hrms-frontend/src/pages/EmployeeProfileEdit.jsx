@@ -6,7 +6,8 @@ import { FaEdit, FaUser, FaBriefcase, FaFileAlt } from "react-icons/fa";
 
 export default function EmployeeProfileEdit() {
     const { id } = useParams();
-    console.log("Employee ID from useParams:", id);    const [employee, setEmployee] = useState(null);
+       
+    const [employee, setEmployee] = useState(null);
     const [formData, setFormData] = useState({});
     const [isEditing, setIsEditing] = useState(false);
     const [activeTab, setActiveTab] = useState("personal");
@@ -83,10 +84,10 @@ export default function EmployeeProfileEdit() {
       if (!employee) return <p>Loading employee details...</p>;
         
       return (
-        <div className="flex min-h-screen bg-gray-100">
+        <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white">
           <EmployeeSidebar employee={employee} />
           <div className="flex-1 p-6">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center dark:bg-gray-900 dark:text-white">
               <div>
                 <h1 className="text-2xl font-semibold">{`${employee.firstName} ${employee.lastName}`}</h1>
                 <p className="text-gray-500">{employee.designation}</p>
@@ -99,9 +100,9 @@ export default function EmployeeProfileEdit() {
               </button>
             </div>
     
-            <div className="bg-white p-6 mt-4 shadow-md rounded-lg flex items-center">
+            <div className="bg-white p-6 mt-4 shadow-md rounded-lg flex items-center dark:bg-gray-800 dark:text-white-800">
               <img
-                src={employee.profilePic || "/default-avatar.png"}
+                src={employee.profilePic || "/assets/default-avatar.jpg"}
                 alt="Profile"
                 className="w-24 h-24 rounded-full"
               />
@@ -111,7 +112,7 @@ export default function EmployeeProfileEdit() {
               </div>
             </div>
     
-            <div className="mt-6 border-b border-gray-200 flex space-x-6 text-gray-600">
+            <div className="mt-6 border-b border-gray-200 flex space-x-6 text-gray-600 dark:bg-gray-900 dark:text-white">
               <button
                 onClick={() => setActiveTab("personal")}
                 className={`pb-2 border-b-2 ${
@@ -144,7 +145,7 @@ export default function EmployeeProfileEdit() {
               </button>
             </div>
     
-            <div className="p-4 bg-white shadow-md rounded-lg mt-4">
+            <div className="p-4 bg-white dark:bg-gray-800 dark:text-white shadow-md rounded-lg mt-4">
               {activeTab === "personal" && (
                 <div>
                   <h2 className="text-lg font-semibold text-purple-500">

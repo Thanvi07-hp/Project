@@ -10,7 +10,7 @@ export default function EmployeeSidebar({ employee }) {
       : "text-black dark:text-white";
 
   return (
-    <aside className="w-64 min-h-screen p-4 bg-white text-black shadow-lg flex flex-col">
+    <aside className="w-64 min-h-screen p-4 bg-white text-black shadow-lg flex flex-col dark:bg-gray-800 dark:text-white">
       <h2 className="text-2xl font-bold mb-4">EMS</h2>
       <nav>
         <ul>
@@ -23,7 +23,7 @@ export default function EmployeeSidebar({ employee }) {
           >
             Profile
           </li>
-          <li className={`py-2 cursor-pointer ${isActive("/emp-tasks")}`} onClick={() => navigate("/emp-tasks")}>
+          <li className={`py-2 cursor-pointer ${isActive("/emp-task")}`} onClick={() => navigate("/emp-task")}>
             Tasks
           </li>
           <li className={`py-2 cursor-pointer ${isActive("/emp-attendance")}`} onClick={() => navigate("/emp-attendance")}>

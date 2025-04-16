@@ -45,9 +45,9 @@ export default function Login() {
   };  
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
+    <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900 ">
       <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-6 ">
           <button
             className={`w-1/2 py-2 font-semibold rounded-l-lg transition ${
               !isAdmin ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-700"
@@ -72,7 +72,7 @@ export default function Login() {
 
         {error && <p className="text-red-500 text-sm text-center mt-2">{error}</p>}
 
-        <form onSubmit={handleLogin} className="mt-4">
+        <form onSubmit={handleLogin} className="mt-4 dark:text-black">
           <div>
             <label className="block text-gray-600 text-sm font-semibold mb-1">
               Email

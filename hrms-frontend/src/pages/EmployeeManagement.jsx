@@ -31,6 +31,16 @@ export default function EmployeeManagement() {
       .then((data) => setEmployee(data))
       .catch((error) => console.error("Error fetching employee:", error));
   }, [id]);
+  useEffect(() => {
+    fetch(`http://localhost:5000/api/employees/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data.documents); // Log to check the documents
+        setEmployee(data);
+      })
+      .catch((error) => console.error("Error fetching employee:", error));
+  }, [id]);
+  
 
   useEffect(() => {
     fetch("http://localhost:5000/api/employees")
@@ -85,14 +95,14 @@ export default function EmployeeManagement() {
   if (!employee) return <p>Loading employee details...</p>;
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen dark:bg-gray-900 dark:text-white">
 
       {/* Main Content */}
       <div className="flex-1 p-6">
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-semibold">{employee.name}</h1>
+            <h1 className="text-2xl font-semibold dark:text-white">{employee.name}</h1>
             <p className="text-gray-500">{employee.designation}</p>
           </div>
           <button
@@ -105,16 +115,16 @@ export default function EmployeeManagement() {
         </div>
 
         {/* Profile Section */}
-        <div className="bg-white p-6 mt-4 shadow-md rounded-lg flex items-center">
+        <div className="bg-white p-6 mt-4 shadow-md rounded-lg flex items-center dark:bg-gray-800 dark:text-white">
           <img
             src={employee.profilePic ? employee.profilePic : "/assets/default-avatar.jpg"}
             alt="Profile"
             className="w-24 h-24 rounded-full"
           />
           <div className="ml-4">
-            <h2 className="text-xl font-bold">{employee.firstName}</h2>
-            <p className="text-gray-500">{employee.designation}</p>
-            <p className="text-gray-500">{employee.email}</p>
+            <h2 className="text-xl font-bold dark:text-white">{employee.firstName}</h2>
+            <p className="text-gray-500 dark:text-white">{employee.designation}</p>
+            <p className="text-gray-500 dark:text-white">{employee.email}</p>
           </div>
         </div>
         {/* Sidebar Navigation */}
@@ -123,21 +133,21 @@ export default function EmployeeManagement() {
             <ul className="space-y-4">
               <li
                 onClick={() => setActiveTab("personal")}
-                className={`cursor-pointer p-2 rounded-lg flex items-center ${activeTab === "personal" ? "bg-purple-500 text-white" : "text-gray-700"
+                className={`cursor-pointer p-2 rounded-lg flex items-center ${activeTab === "personal" ? "bg-purple-500 text-white" : "text-gray-500"
                   }`}
               >
                 <FaUser className="mr-2" /> Profile
               </li>
               <li
                 onClick={() => setActiveTab("attendance")}
-                className={`cursor-pointer p-2 rounded-lg flex items-center ${activeTab === "attendance" ? "bg-purple-500 text-white" : "text-gray-700"
+                className={`cursor-pointer p-2 rounded-lg flex items-center ${activeTab === "attendance" ? "bg-purple-500 text-white" : "text-gray-500"
                   }`}
               >
                 <FaCalendarCheck className="mr-2" /> Attendance
               </li>
               <li
                 onClick={() => setActiveTab("Tasks")}
-                className={`cursor-pointer p-2 rounded-lg flex items-center ${activeTab === "Tasks" ? "bg-purple-500 text-white" : "text-gray-700"
+                className={`cursor-pointer p-2 rounded-lg flex items-center ${activeTab === "Tasks" ? "bg-purple-500 text-white" : "text-gray-500"
                   }`}
               >
                 <FaProjectDiagram className="mr-2" /> Tasks
@@ -154,7 +164,7 @@ export default function EmployeeManagement() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="mt-6 border-b border-gray-200 flex space-x-6 text-gray-600">
+        <div className="mt-6 border-b border-gray-200 flex space-x-6 text-gray-600 dark:text-gray-500">
           <button onClick={() => setActiveTab("personal")} className={`pb-2 border-b-2 ${activeTab === "personal" ? "border-purple-500 text-purple-600" : "border-transparent"}`}>
             <FaUser className="inline mr-2" /> Personal Information
           </button>
@@ -167,7 +177,7 @@ export default function EmployeeManagement() {
         </div>
 
         {/* Main Tab Content */}
-        <div className="p-4 bg-white shadow-md rounded-lg mt-4">
+        <div className="p-4 bg-white dark:bg-gray-800 dark:text-white shadow-md rounded-lg mt-4">
           {activeTab === "personal" && (
             <div>
               <h2 className="text-lg font-semibold text-purple-500">Personal Information</h2>
@@ -200,30 +210,84 @@ export default function EmployeeManagement() {
             </div>
           )}
 
-          {activeTab === "documents" && (
-            <div>
-              <h2 className="text-lg font-semibold text-purple-500">Documents</h2>
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                {employee.documents && employee.documents.length > 0 ? (
-                  employee.documents.slice(0, 4).map((doc, index) => (
-                    <div key={index} className="flex justify-between bg-gray-100 p-2 rounded-lg">
-                      <span>{doc.name || `Document ${index + 1}`}</span>
-                      <div className="flex space-x-2">
-                        <a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                          View
-                        </a>
-                        <a href={doc.url} download className="text-green-500 hover:underline">
-                          Download
-                        </a>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-gray-500">No documents uploaded.</p>
-                )}
-              </div>
-            </div>
-          )}
+{activeTab === "documents" && (
+  <div>
+    <h2 className="text-lg font-semibold text-purple-500">Documents</h2>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+      {/* Check if any document field exists and display it */}
+      {employee.aadharCard && (
+        <div key="aadharCard" className="flex justify-between bg-gray-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
+          <div className="flex-1">
+            <span className="text-gray-700">Aadhar Card</span>
+          </div>
+          <div className="flex space-x-2">
+            <a href={`http://localhost:5000/${employee.aadharCard}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+              View
+            </a>
+            <a href={`http://localhost:5000/${employee.aadharCard}`} download className="text-green-500 hover:underline">
+              Download
+            </a>
+          </div>
+        </div>
+      )}
+
+      {employee.appointmentLetter && (
+        <div key="appointmentLetter" className="flex justify-between bg-gray-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
+          <div className="flex-1">
+            <span className="text-gray-700">Appointment Letter</span>
+          </div>
+          <div className="flex space-x-2">
+            <a href={`http://localhost:5000/${employee.appointmentLetter}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+              View
+            </a>
+            <a href={`http://localhost:5000/${employee.appointmentLetter}`} download className="text-green-500 hover:underline">
+              Download
+            </a>
+          </div>
+        </div>
+      )}
+
+      {employee.otherDocument1 && (
+        <div key="otherDocument1" className="flex justify-between bg-gray-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
+          <div className="flex-1">
+            <span className="text-gray-700">Other Document 1</span>
+          </div>
+          <div className="flex space-x-2">
+            <a href={`http://localhost:5000/${employee.otherDocument1}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+              View
+            </a>
+            <a href={`http://localhost:5000/${employee.otherDocument1}`} download className="text-green-500 hover:underline">
+              Download
+            </a>
+          </div>
+        </div>
+      )}
+
+      {employee.otherDocument2 && (
+        <div key="otherDocument2" className="flex justify-between bg-gray-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
+          <div className="flex-1">
+            <span className="text-gray-700">Other Document 2</span>
+          </div>
+          <div className="flex space-x-2">
+            <a href={`http://localhost:5000/${employee.otherDocument2}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+              View
+            </a>
+            <a href={`http://localhost:5000/${employee.otherDocument2}`} download className="text-green-500 hover:underline">
+              Download
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* If no documents are uploaded */}
+      {!employee.aadharCard && !employee.appointmentLetter && !employee.otherDocument1 && !employee.otherDocument2 && (
+        <p className="text-gray-500">No documents uploaded.</p>
+      )}
+    </div>
+  </div>
+)}
+
+
 
           {activeTab === "attendance" && (
             <div>

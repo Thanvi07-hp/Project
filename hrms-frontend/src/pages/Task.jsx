@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { format } from 'date-fns';
+
 
 const Task = () => {
     const [tasks, setTasks] = useState([]);
@@ -24,7 +24,7 @@ const Task = () => {
         employeeId: ''
     });
 
-    console.log("Updated date",updatedTask.due_date)
+    console.log("Updated date", updatedTask.due_date)
     // Fetch tasks from the backend
     const fetchTasks = async () => {
         try {
@@ -48,11 +48,11 @@ const Task = () => {
     const markOverdueTasksAsFailed = async () => {
         const today = new Date();
         today.setHours(0, 0, 0, 0); // Set today's date to midnight to avoid time comparison issues
-    
+
         tasks.forEach(async (task) => {
             const taskDueDate = new Date(task.due_date);
             taskDueDate.setHours(0, 0, 0, 0); // Set the task's due date to midnight for accurate comparison
-    
+
             if (taskDueDate < today) {
                 try {
                     await axios.put(`http://localhost:5000/api/tasks/${task.id}/fail`);
@@ -70,7 +70,7 @@ const Task = () => {
         taskDate.setHours(0, 0, 0, 0); // Set task's due date to midnight
         return taskDate.getTime() === today.getTime(); // Check if the due date matches today's date
     };
-    
+
     useEffect(() => {
         fetchTasks();
         fetchEmployees();
@@ -81,7 +81,7 @@ const Task = () => {
             markOverdueTasksAsFailed();
         }
     }, [tasks]);
-    
+
 
     useEffect(() => {
         fetchEmployees();
@@ -139,7 +139,7 @@ const Task = () => {
             task_name: task.task_name,
             task_description: task.task_description,
             employee_name: task.employee_name,
-            due_date: format(new Date(task.due_date), 'yyyy-MM-dd'),
+            due_date: task.due_date,
             employeeId: task.employee_id
         });
 
@@ -168,7 +168,14 @@ const Task = () => {
             console.error("There was an error deleting the task:", error);
         }
     };
-
+    const handleCompleteTask = async (taskId) => {
+        try {
+            await axios.put(`http://localhost:5000/api/tasks/${taskId}/complete`); // Make sure backend handles 'completed' status
+            fetchTasks();
+        } catch (error) {
+            console.error("There was an error marking the task as completed:", error);
+        }
+    };
     // Handle fail task
     const handleFailTask = async (taskId) => {
         try {
@@ -267,25 +274,25 @@ const Task = () => {
                         />
                     </div>
                     <div className="flex flex-col md:flex-row gap-4">
-                         <select
-                        value={updatedTask.employee_name}
-                        onChange={(e) => {
-                            const selectedEmployee = employees.find(emp => emp.firstName === e.target.value);
-                            setUpdatedTask({
-                                ...updatedTask,
-                                employee_name: e.target.value,
-                                employeeId: selectedEmployee ? selectedEmployee.employeeId : ''
-                            });
-                        }}
-                        className="p-2 border border-gray-300 rounded-lg w-full"
-                    >
-                        <option value="">Select Employee</option>
-                        {employees.map((employee) => (
-                            <option key={employee.id} value={employee.firstName}>
-                                {employee.firstName}
-                            </option>
-                        ))}
-                    </select>
+                        <select
+                            value={updatedTask.employee_name}
+                            onChange={(e) => {
+                                const selectedEmployee = employees.find(emp => emp.firstName === e.target.value);
+                                setUpdatedTask({
+                                    ...updatedTask,
+                                    employee_name: e.target.value,
+                                    employeeId: selectedEmployee ? selectedEmployee.employeeId : ''
+                                });
+                            }}
+                            className="p-2 border border-gray-300 rounded-lg w-full"
+                        >
+                            <option value="">Select Employee</option>
+                            {employees.map((employee) => (
+                                <option key={employee.id} value={employee.firstName}>
+                                    {employee.firstName}
+                                </option>
+                            ))}
+                        </select>
                         <input
                             type="date"
                             value={updatedTask.due_date}
@@ -318,36 +325,38 @@ const Task = () => {
 
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-5">
-                {(showAllTasks ? tasks : tasks.slice(0, 2)).map((task) => (
-                    <div key={task.id} className={`bg-white p-6 shadow-lg rounded-lg hover:shadow-xl transition mt-10 ${isTaskDueToday(task.due_date) ? 'bg-yellow-50 border-l-4 border-red-500' : 'bg-green-100 border-l-4 border-green-500'}`}>
-                        <h3 className="text-xl font-semibold text-gray-900">{task.task_name}</h3>
-                        <p className="text-gray-600 mt-2">{task.task_description}</p>
-                        <p className="text-gray-500 mt-2">Assigned to: {task.employee_name}</p>
-                        <p className="text-gray-500 mt-2">Due Date: {format(new Date(task.due_date), 'MMMM dd, yyyy')}</p>
+            {(showAllTasks ? tasks : tasks.slice(0, 3))
+        .filter(task => task.status !== 'completed') // Filter out completed tasks
+        .map((task) => (
+                        <div key={task.id} className={`bg-white p-6 shadow-lg rounded-lg hover:shadow-xl transition mt-10 ${isTaskDueToday(task.due_date) ? 'bg-yellow-50 border-l-4 border-red-500' : 'bg-green-100 border-l-4 border-green-500'}`}>
+                            <h3 className="text-xl font-semibold text-gray-900">{task.task_name}</h3>
+                            <p className="text-gray-600 mt-2">{task.task_description}</p>
+                            <p className="text-gray-500 mt-2">Assigned to: {task.employee_name}</p>
+                            <p className="text-gray-500 mt-2">Due Date: {task.due_date}</p>
 
-                        {/* Task Action Buttons */}
-                        <div className="flex gap-2 mt-4">
-                            <button
-                                className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition"
-                                onClick={() => handleEditTask(task)}
-                            >
-                                Edit
-                            </button>
-                            <button
-                                className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition"
-                                onClick={() => handleDeleteTask(task.id)}
-                            >
-                                Delete
-                            </button>
-                            <button
-                                className="bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition"
-                                onClick={() => handleFailTask(task.id)}
-                            >
-                                Mark as Failed
-                            </button>
+                            {/* Task Action Buttons */}
+                            <div className="flex gap-2 mt-4">
+                                <button
+                                    className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition"
+                                    onClick={() => handleEditTask(task)}
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition"
+                                    onClick={() => handleDeleteTask(task.id)}
+                                >
+                                    Delete
+                                </button>
+                                <button
+                                    className="bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition"
+                                    onClick={() => handleFailTask(task.id)}
+                                >
+                                    Mark as Failed
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
             </div>
 
             {/* View More Button */}
@@ -381,7 +390,7 @@ const Task = () => {
                                             <h3 className="text-xl font-semibold text-gray-900">{task.task_name}</h3>
                                             <p className="text-gray-600">{task.task_description}</p>
                                             <p className="text-gray-500">Assigned to: {task.employee_name}</p>
-                                            <p className="text-gray-500">Due Date: {format(new Date(task.due_date), 'MMMM dd, yyyy')}</p>
+                                            <p className="text-gray-500">Due Date:{task.due_date}</p>
                                         </div>
                                     </div>
                                 </li>
@@ -403,7 +412,7 @@ const Task = () => {
                                         <h3 className="text-xl font-semibold text-gray-900">{task.task_name}</h3>
                                         <p className="text-gray-600">{task.task_description}</p>
                                         <p className="text-gray-500">Assigned to: {task.employee_name}</p>
-                                        <p className="text-gray-500">Due Date: {format(new Date(task.due_date), 'MMMM dd, yyyy')}</p>
+                                        <p className="text-gray-500">Due Date: {task.due_date}</p>
                                     </div>
                                 </div>
                             </li>
