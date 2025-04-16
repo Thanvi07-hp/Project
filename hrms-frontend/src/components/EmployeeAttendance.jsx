@@ -74,14 +74,20 @@ export default function EmployeeAttendance() {
           <h3 className="text-lg font-medium mb-4">Attendance Overview</h3>
 <center>
   
-          <ResponsiveContainer width="100%" height={300} >
-            <BarChart data={chartData} barCategoryGap={20} barGap={8}>
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="status" fill="#3b82f6" />
-            </BarChart>
-          </ResponsiveContainer>
+{chartData.length === 0 ? (
+            <p className="text-center text-gray-500">No attendance for this employee</p>
+          ) : (
+            <center>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={chartData} barCategoryGap={20} barGap={8}>
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="status" fill="#3b82f6" />
+                </BarChart>
+              </ResponsiveContainer>
+            </center>
+          )}
 </center>
         </div>
 

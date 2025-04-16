@@ -100,7 +100,19 @@ const Performance = () => {
     },
   };
 
+  // Loading and error handling
+  if (loading) return <p className="text-gray-600 text-lg">Loading task data...</p>;
   if (error) return <p className="text-red-600 text-lg">{error}</p>;
+
+  // If no task data (assigned, completed, failed) exists
+  if (assigned === 0 && completed === 0 && failed === 0) {
+    return (
+      <div className="container mx-auto p-6 space-y-8 ">
+        <h3 className="text-3xl font-semibold text-center text-gray-800">Employee Performance</h3>
+        <p className="text-center text-gray-600">No performance data for this employee</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-6 space-y-8 ">
@@ -110,10 +122,9 @@ const Performance = () => {
         <div className=" h-[350px] shadow-lg rounded-xl overflow-hidden">
           <Doughnut data={doughnutData} options={options} />
         </div>
-      
+      </div>
 
       <div className="text-center text-gray-900 mt-14 ml-4">
-       
         <p className=" text-lg text-purple-700 font-bold mt-14">
           Performance: {performance.toFixed(2)}%
         </p>
@@ -127,7 +138,6 @@ const Performance = () => {
           <p className="text-green-600 text-xl font-semibold mt-1">Excellent</p>
         )}
       </div>
-    </div>
     </div>
   );
 };

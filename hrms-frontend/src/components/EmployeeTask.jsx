@@ -20,24 +20,34 @@ const EmployeeTask = () => {
     const fetchTasks = async () => {
       try {
         setLoading(true);
-        
-        const response = await fetch(`http://localhost:5000/api/tasks/employee/${employeeId}`); // Fetch tasks for the logged-in employee
+    
+        const response = await fetch(`http://localhost:5000/api/tasks/employee/${employeeId}`); 
 
         if (!response.ok) {
-          throw new Error('Failed to fetch tasks');
+          throw new Error(`Failed to fetch task `);
         }
-
         const data = await response.json();
-        setTasks(data); // Store the tasks in state
+
+        
+        
+        if (data && data.length === 0) {
+          setTasks([]); 
+          setNoTasksMessage("No tasks found for this employee."); 
+        } else {
+          setTasks(data); 
+          setNoTasksMessage(""); 
+        }
+    
       } catch (err) {
-        setError(err.message); // Handle any errors that occur
+         
       } finally {
         setLoading(false); // Set loading to false once the request is complete
       }
     };
-
+    
     fetchTasks(); // Call fetchTasks when employeeId is available
   }, [employeeId]);
+
 
   const handleMarkAsCompleted = async (taskId) => {
     try {
@@ -83,9 +93,12 @@ const EmployeeTask = () => {
           <>
             {/* Pending Tasks Section */}
             <div className="mb-6">
-              <h3 className="text-2xl font-bold mb-4">Pending Tasks</h3>
               {pendingTasks.length === 0 ? (
-                <p>No pending tasks available.</p>
+                <div className='bg-white shadow rounded p-6 dark:bg-gray-900'>
+                  <h3 className="text-2xl font-semibold mb-4">Pending Tasks</h3>
+
+                <p className='text-center'>No pending tasks available.</p>
+                </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 overflow-y-auto max-h-96">
                   {pendingTasks.map((task) => (
@@ -120,15 +133,18 @@ const EmployeeTask = () => {
 
             {/* Completed Tasks Section */}
             <div>
-              <h3 className="text-2xl font-bold mb-4">Completed Tasks</h3>
               {completedTasks.length === 0 ? (
-                <p>No completed tasks available.</p>
+                <div className='bg-white shadow rounded p-6 dark:bg-gray-900'>
+                  
+                <h3 className="text-2xl font-semibold mb-4 ">Completed Tasks</h3>
+                <p className='text-center'>No completed tasks available.</p>
+                </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 overflow-y-auto max-h-96">
                   {completedTasks.map((task) => (
                     <div
-                      key={task.id}
-                      className="bg-gray-200 p-6 shadow-lg rounded-lg transition mt-4"
+                    key={task.id}
+                    className="bg-gray-200 p-6 shadow-lg rounded-lg transition mt-4"
                     >
                       <h3 className="text-xl font-semibold text-gray-900">{task.task_name}</h3>
                       <p className="text-gray-600 mt-2">{task.task_description}</p>

@@ -974,7 +974,7 @@ app.get('/api/failed-tasks', async (req, res) => {
         res.status(500).json({ message: 'Error fetching failed tasks', error });
     }
 });
-// Route to mark a task as completed
+
 // In your Express server, define a route to mark the task as completed
 app.put('/api/tasks/:taskId/complete', async (req, res) => {
     const { taskId } = req.params;
@@ -987,7 +987,6 @@ app.put('/api/tasks/:taskId/complete', async (req, res) => {
         res.status(500).send('Failed to mark task as completed');
     }
 });
-
 
 // Route to fetch all completed tasks
 app.get('/api/completed-tasks', async (req, res) => {
@@ -1020,81 +1019,41 @@ app.get('/api/completed-tasks', async (req, res) => {
     }
 });
 
-// app.get('/api/tasks/employee/:employeeId/assigned-today', async (req, res) => {
-//     const { employeeId } = req.params;
+app.get('/api/tasks/employee/:employeeId/assigned-today', async (req, res) => {
+    const { employeeId } = req.params;
 
-//     const employeeIdInt = parseInt(employeeId, 10);
-//     if (isNaN(employeeIdInt)) {
-//         return res.status(400).json({ message: 'Invalid employeeId. It must be a valid integer.' });
-//     }
+    const employeeIdInt = parseInt(employeeId, 10);
+    if (isNaN(employeeIdInt)) {
+        return res.status(400).json({ message: 'Invalid employeeId. It must be a valid integer.' });
+    }
 
-//     try {
-//         // Query to get tasks assigned today for a specific employee (using the `assigned_date`)
-//         const [tasks] = await db.query(`
-//             SELECT t.*, e.firstName, e.lastName 
-//             FROM tasks t
-//             JOIN employees e ON t.employee_id = e.employeeId
-//             WHERE t.employee_id = ? AND DATE(t.assigned_date) = CURDATE()
-//         `, [employeeIdInt]);
+    try {
+          const [tasks] = await db.query(`
+            SELECT t.*, e.firstName, e.lastName 
+            FROM tasks t
+            JOIN employees e ON t.employee_id = e.employeeId
+            WHERE t.employee_id = ? AND DATE(t.assigned_date) = CURDATE()
+        `, [employeeIdInt]);
 
-//         if (tasks.length === 0) {
-//             return res.status(404).json({ message: 'No tasks assigned today for this employee.' });
-//         }
-//         const formattedTasks = tasks.map(task => {
-//             const assignedDate = new Date(task.assigned_date); // Convert to Date object
+        if (tasks.length === 0) {
+            return res.status(404).json({ message: 'No tasks assigned today for this employee.' });
+        }
+        const formattedTasks = tasks.map(task => {
+            const assignedDate = new Date(task.assigned_date); // Convert to Date object
 
-//             // Adjust the due_date to local time
-//             task.assigned_date = assignedDate.toLocaleDateString(); // This converts to local date (e.g., 'MM/DD/YYYY')
-//             // Or you could use: task.due_date = dueDate.toISOString().split('T')[0] to keep it as 'YYYY-MM-DD'
+            
+            task.assigned_date = assignedDate.toLocaleDateString(); // This converts to local date (e.g., 'MM/DD/YYYY')
+           
+            return task;
+        });
 
-//             return task;
-//         });
-
-//         res.json(formattedTasks);
+        res.json(formattedTasks);
         
-//     } catch (error) {
-//         console.error('Error fetching tasks assigned today:', error);
-//         res.status(500).json({ message: 'Error fetching tasks assigned today', error });
-//     }
-// });
-
-// app.get('/api/tasks/employee/:employeeId/assigned-today', async (req, res) => {
-//     const { employeeId } = req.params;
-
-//     const employeeIdInt = parseInt(employeeId, 10);
-//     if (isNaN(employeeIdInt)) {
-//         return res.status(400).json({ message: 'Invalid employeeId. It must be a valid integer.' });
-//     }
-
-//     try {
-//         // Query to get tasks assigned today for a specific employee (using the `assigned_date`)
-//         const [tasks] = await db.query(`
-//             SELECT t.*, e.firstName, e.lastName 
-//             FROM tasks t
-//             JOIN employees e ON t.employee_id = e.employeeId
-//             WHERE t.employee_id = ? AND DATE(t.assigned_date) = CURDATE()
-//         `, [employeeIdInt]);
-
-//         if (tasks.length === 0) {
-//             return res.status(404).json({ message: 'No tasks assigned today for this employee.' });
-//         }
-//         const formattedTasks = tasks.map(task => {
-//             const assignedDate = new Date(task.assigned_date); // Convert to Date object
-
-//             // Adjust the due_date to local time
-//             task.assigned_date = assignedDate.toLocaleDateString(); // This converts to local date (e.g., 'MM/DD/YYYY')
-//             // Or you could use: task.due_date = dueDate.toISOString().split('T')[0] to keep it as 'YYYY-MM-DD'
-
-//             return task;
-//         });
-
-//         res.json(formattedTasks);
-        
-//     } catch (error) {
-//         console.error('Error fetching tasks assigned today:', error);
-//         res.status(500).json({ message: 'Error fetching tasks assigned today', error });
-//     }
-// });
+    } catch (error) {
+        console.error('Error fetching tasks assigned today:', error);
+        res.status(500).json({ message: 'Error fetching tasks assigned today', error });
+    }
+});
 
 app.get('/api/tasks/employee/:employeeId/counts', async (req, res) => {
     const { employeeId } = req.params;
@@ -1123,10 +1082,8 @@ app.get('/api/tasks/employee/:employeeId/counts', async (req, res) => {
       // Ensure the error is returned as JSON
       res.status(500).json({ message: 'Error fetching task counts', error: error.message });
     }
-  });
+});
 
-  
-  
 
 
 
