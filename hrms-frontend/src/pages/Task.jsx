@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { format } from 'date-fns';
+
 
 const Task = () => {
     const [tasks, setTasks] = useState([]);
@@ -139,7 +139,7 @@ const Task = () => {
             task_name: task.task_name,
             task_description: task.task_description,
             employee_name: task.employee_name,
-            due_date: format(new Date(task.due_date), 'yyyy-MM-dd'),
+            due_date: task.due_date,
             employeeId: task.employee_id
         });
 
@@ -332,7 +332,7 @@ const Task = () => {
                             <h3 className="text-xl font-semibold text-gray-900">{task.task_name}</h3>
                             <p className="text-gray-600 mt-2">{task.task_description}</p>
                             <p className="text-gray-500 mt-2">Assigned to: {task.employee_name}</p>
-                            <p className="text-gray-500 mt-2">Due Date: {format(new Date(task.due_date), 'MMMM dd, yyyy')}</p>
+                            <p className="text-gray-500 mt-2">Due Date: {task.due_date}</p>
 
                             {/* Task Action Buttons */}
                             <div className="flex gap-2 mt-4">
@@ -390,7 +390,7 @@ const Task = () => {
                                             <h3 className="text-xl font-semibold text-gray-900">{task.task_name}</h3>
                                             <p className="text-gray-600">{task.task_description}</p>
                                             <p className="text-gray-500">Assigned to: {task.employee_name}</p>
-                                            <p className="text-gray-500">Due Date: {format(new Date(task.due_date), 'MMMM dd, yyyy')}</p>
+                                            <p className="text-gray-500">Due Date:{task.due_date}</p>
                                         </div>
                                     </div>
                                 </li>
@@ -412,7 +412,7 @@ const Task = () => {
                                         <h3 className="text-xl font-semibold text-gray-900">{task.task_name}</h3>
                                         <p className="text-gray-600">{task.task_description}</p>
                                         <p className="text-gray-500">Assigned to: {task.employee_name}</p>
-                                        <p className="text-gray-500">Due Date: {format(new Date(task.due_date), 'MMMM dd, yyyy')}</p>
+                                        <p className="text-gray-500">Due Date: {task.due_date}</p>
                                     </div>
                                 </div>
                             </li>

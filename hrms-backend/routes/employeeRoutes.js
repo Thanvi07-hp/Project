@@ -238,5 +238,41 @@ router.get("/payroll/:employeeId", async (req, res) => {
   }
 });
 
+router.get('/tasks/employee/:employeeId/assigned-today', async (req, res) => {
+  const { employeeId } = req.params;
+
+  const employeeIdInt = parseInt(employeeId, 10);
+  if (isNaN(employeeIdInt)) {
+      return res.status(400).json({ message: 'Invalid employeeId. It must be a valid integer.' });
+  }
+
+  try {
+      const [tasks] = await db.query(`
+          SELECT t.*, e.firstName, e.lastName 
+          FROM tasks t
+          JOIN employees e ON t.employee_id = e.employeeId
+          WHERE t.employee_id = ? AND DATE(t.assigned_date) = CURDATE()
+      `, [employeeIdInt]);
+
+      if (tasks.length === 0) {
+          return res.status(404).json({ message: 'No tasks assigned today for this employee.' });
+      }
+      
+      const formattedTasks = tasks.map(task => {
+          const assignedDate = new Date(task.assigned_date); // Convert to Date object
+          task.assigned_date = assignedDate.toLocaleDateString(); // Convert to a readable format
+          return task;
+      });
+
+      res.json({ tasks: formattedTasks });
+  } catch (error) {
+      console.error("Error fetching tasks for today:", error);
+      res.status(500).json({ message: "Error fetching tasks assigned today", error: error.message });
+  }
+});
+
+// Get Task Count for an Employee
+
+
 
 module.exports = router;

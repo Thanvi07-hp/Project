@@ -41,37 +41,34 @@ const verifyToken = (req, res, next) => {
 
 //Login Logic
 app.post("/api/login", async (req, res) => {
-    const { email, password, role } = req.body;
-    let table = role === "admin" ? "users" : "employees";  
+    const { email, password } = req.body;
+    const table = "users";  // Ensure this table exists in your database
 
     try {
         const [results] = await db.query(`SELECT * FROM ${table} WHERE email = ?`, [email]);
-        console.log("Trying login with:", email, password);
-        console.log("Stored hash:", user.password);
+
         if (results.length === 0) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
         const user = results[0];
-
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
-        const token = jwt.sign(
-            { id: user.id || user.employeeId, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: "1h" }
-        );
+        const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
         res.json({ token, role: user.role });
 
     } catch (error) {
+        console.error("Database query error:", error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
 });
+
+
 
 
 // 🔹 Get All Employees (Move below verifyToken)
@@ -85,74 +82,7 @@ app.get("/api/employees", async (req, res) => {
     }
 });
 
-// Multer setup for file uploads
-// const storage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//       cb(null, "uploads/"); 
-//     },
-//     filename: (req, file, cb) => {
-//       cb(null, Date.now() + path.extname(file.originalname)); 
-//     },
-//   });
 
-//   const upload = multer({ storage });
-
-// To Add Employee
-// app.post(
-//   "/api/employees",
-//   upload.fields([
-//     { name: "profilePic", maxCount: 1 },
-//     { name: "aadharCard", maxCount: 1 },
-//     { name: "appointmentLetter", maxCount: 1 },
-//     { name: "otherDocument1", maxCount: 1 },
-//     { name: "otherDocument2", maxCount: 1 },
-//   ]),
-//   async (req, res) => {
-//     try {
-//         const employeeData = { ...req.body };  
-//         // console.log("Received Employee Data:", employeeData);
-
-
-//       const {
-//         firstName, lastName, mobile, email, dob, maritalStatus, gender,
-//         nationality, address, city, state, zip, employeeId, userName,
-//         department, designation, type, status, workingDays, joiningDate, role, attendance
-//       } = req.body;
-
-//       // Check required fields before proceeding
-//       if (!employeeData.firstName || !employeeData.lastName || !employeeData.email) {
-//         return res.status(400).json({ message: "Missing required fields" });
-//     }
-
-//       const profilePic = req.files["profilePic"] ? req.files["profilePic"][0].path : null;
-//       const aadharCard = req.files["aadharCard"] ? req.files["aadharCard"][0].path : null;
-//       const appointmentLetter = req.files["appointmentLetter"] ? req.files["appointmentLetter"][0].path : null;
-//       const otherDocument1 = req.files["otherDocument1"] ? req.files["otherDocument1"][0].path : null;
-//       const otherDocument2 = req.files["otherDocument2"] ? req.files["otherDocument2"][0].path : null;
-
-//       const query = `INSERT INTO employees (
-//         firstName, lastName, mobile, email, dob, maritalStatus, gender, nationality,
-//         address, city, state, zip, employeeId, userName, department, designation, type,
-//         status, workingDays, joiningDate, role, attendance, profilePic, aadharCard,
-//         appointmentLetter, otherDocument1, otherDocument2, created_at
-//       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`;
-
-//       const values = [
-//         firstName, lastName, mobile, email, dob, maritalStatus, gender,
-//         nationality, address, city, state, zip, employeeId, userName,
-//         department, designation, type, status, workingDays, joiningDate,
-//         role, attendance, profilePic, aadharCard, appointmentLetter,
-//         otherDocument1, otherDocument2
-//       ];
-//       await db.query(query, values);
-//         res.status(201).json({ message: "Employee added successfully" });
-
-//     } catch (error) {
-//         console.error("Server error:", error);
-//         res.status(500).json({ message: "Internal server error" });
-//     }
-//   }
-// );
 app.use('/uploads', express.static('uploads'));
 
 // Multer configuration
@@ -170,12 +100,7 @@ const storage = multer.diskStorage({
 
 
 
-  //password 
-// const firstName = req.body.firstName;
-// const password = `${firstName}123`;
-// const hashedPassword = await bcrypt.hash(password, 10);
-
-
+  
   // Add employee route
   
   app.post(
@@ -731,6 +656,7 @@ app.delete('/api/holidays', async (req, res) => {
 //Tasks
 app.post('/api/tasks', async (req, res) => {
     const { task_name, task_description, employee_name, due_date, employeeId, status = 'pending' } = req.body;
+    
 
     // Convert employeeId to integer
     const employeeIdInt = parseInt(employeeId, 10);
@@ -755,19 +681,28 @@ app.post('/api/tasks', async (req, res) => {
 
 app.get('/api/tasks', async (req, res) => {
     try {
-        // Query the database to get all tasks along with the employee details
         const [tasks] = await db.query(`
             SELECT t.*, e.firstName, e.lastName 
             FROM tasks t
             JOIN employees e ON t.employee_id = e.employeeId
-            WHERE t.status != 'failed'  -- Optional: you can filter out failed tasks if needed
+            WHERE t.status != 'failed'
         `);
 
-        // Send the tasks as a response in JSON format
-        res.json(tasks);
+        // Convert the due_date from UTC to local time
+        const formattedTasks = tasks.map(task => {
+            const dueDate = new Date(task.due_date); // Convert to Date object
+            const assignedDate = new Date(task.assigned_date); // Convert to Date object
+
+
+            // Adjust the due_date to local time
+            task.due_date = dueDate.toLocaleDateString(); 
+            task.assigned_date = assignedDate.toLocaleDateString(); 
+            
+            return task;
+        });
+        res.json(formattedTasks);
     } catch (error) {
         console.error(error);
-        // Send an error response if something goes wrong
         res.status(500).json({ message: 'Error fetching tasks', error });
     }
 });
@@ -792,9 +727,21 @@ app.get('/api/tasks/:taskId', async (req, res) => {
         if (rows.length === 0) {
             return res.status(404).json({ message: 'Task not found' });
         }
+        const formattedTasks = rows.map(task => {
+            const dueDate = new Date(task.due_date); // Convert to Date object
+            const assignedDate = new Date(task.assigned_date); // Convert to Date object
 
+
+            // Adjust the due_date to local time
+            task.due_date = dueDate.toLocaleDateString(); 
+            task.assigned_date = assignedDate.toLocaleDateString(); 
+            
+            return task;
+        });
+
+        res.json(formattedTasks[0]);
         // Send the task data as a response
-        res.json(rows[0]);
+        
     } catch (error) {
         console.error('Error fetching task:', error);
         res.status(500).json({ message: 'Error fetching task', error });
@@ -823,9 +770,20 @@ app.get('/api/tasks/employee/:employeeId', async (req, res) => {
         if (tasks.length === 0) {
             return res.status(404).json({ message: 'No tasks found for this employee.' });
         }
+        const formattedTasks = tasks.map(task => {
+            const dueDate = new Date(task.due_date); // Convert to Date object
+            const assignedDate = new Date(task.assigned_date); // Convert to Date object
 
-        // Send the tasks as a response
-        res.json(tasks);
+
+            // Adjust the due_date to local time
+            task.due_date = dueDate.toLocaleDateString(); 
+            task.assigned_date = assignedDate.toLocaleDateString(); 
+            
+            return task;
+        });
+
+        res.json(formattedTasks);
+        
     } catch (error) {
         console.error('Error fetching tasks for employee:', error);
         res.status(500).json({ message: 'Error fetching tasks', error });
@@ -914,7 +872,18 @@ app.get('/api/failed-tasks', async (req, res) => {
         `);
 
         // Send the failed tasks as a response in JSON format
-        res.json(failedTasks);
+        const formattedTasks = failedTasks.map(task => {
+            const dueDate = new Date(task.due_date); // Convert to Date object
+
+            // Adjust the due_date to local time
+            task.due_date = dueDate.toLocaleDateString(); // This converts to local date (e.g., 'MM/DD/YYYY')
+            // Or you could use: task.due_date = dueDate.toISOString().split('T')[0] to keep it as 'YYYY-MM-DD'
+
+            return task;
+        });
+
+        res.json(formattedTasks);
+        
     } catch (error) {
         console.error(error);
         // Send an error response if something goes wrong
@@ -948,13 +917,133 @@ app.get('/api/completed-tasks', async (req, res) => {
         `);
 
         // Send the completed tasks as a response in JSON format
-        res.json(completedTasks);
+        const formattedTasks = completedTasks.map(task => {
+            const dueDate = new Date(task.due_date); // Convert to Date object
+
+            // Adjust the due_date to local time
+            task.due_date = dueDate.toLocaleDateString(); // This converts to local date (e.g., 'MM/DD/YYYY')
+            // Or you could use: task.due_date = dueDate.toISOString().split('T')[0] to keep it as 'YYYY-MM-DD'
+
+            return task;
+        });
+
+        res.json(formattedTasks);
+       
     } catch (error) {
         console.error(error);
         // Send an error response if something goes wrong
         res.status(500).json({ message: 'Error fetching completed tasks', error });
     }
 });
+
+// app.get('/api/tasks/employee/:employeeId/assigned-today', async (req, res) => {
+//     const { employeeId } = req.params;
+
+//     const employeeIdInt = parseInt(employeeId, 10);
+//     if (isNaN(employeeIdInt)) {
+//         return res.status(400).json({ message: 'Invalid employeeId. It must be a valid integer.' });
+//     }
+
+//     try {
+//         // Query to get tasks assigned today for a specific employee (using the `assigned_date`)
+//         const [tasks] = await db.query(`
+//             SELECT t.*, e.firstName, e.lastName 
+//             FROM tasks t
+//             JOIN employees e ON t.employee_id = e.employeeId
+//             WHERE t.employee_id = ? AND DATE(t.assigned_date) = CURDATE()
+//         `, [employeeIdInt]);
+
+//         if (tasks.length === 0) {
+//             return res.status(404).json({ message: 'No tasks assigned today for this employee.' });
+//         }
+//         const formattedTasks = tasks.map(task => {
+//             const assignedDate = new Date(task.assigned_date); // Convert to Date object
+
+//             // Adjust the due_date to local time
+//             task.assigned_date = assignedDate.toLocaleDateString(); // This converts to local date (e.g., 'MM/DD/YYYY')
+//             // Or you could use: task.due_date = dueDate.toISOString().split('T')[0] to keep it as 'YYYY-MM-DD'
+
+//             return task;
+//         });
+
+//         res.json(formattedTasks);
+        
+//     } catch (error) {
+//         console.error('Error fetching tasks assigned today:', error);
+//         res.status(500).json({ message: 'Error fetching tasks assigned today', error });
+//     }
+// });
+
+// app.get('/api/tasks/employee/:employeeId/assigned-today', async (req, res) => {
+//     const { employeeId } = req.params;
+
+//     const employeeIdInt = parseInt(employeeId, 10);
+//     if (isNaN(employeeIdInt)) {
+//         return res.status(400).json({ message: 'Invalid employeeId. It must be a valid integer.' });
+//     }
+
+//     try {
+//         // Query to get tasks assigned today for a specific employee (using the `assigned_date`)
+//         const [tasks] = await db.query(`
+//             SELECT t.*, e.firstName, e.lastName 
+//             FROM tasks t
+//             JOIN employees e ON t.employee_id = e.employeeId
+//             WHERE t.employee_id = ? AND DATE(t.assigned_date) = CURDATE()
+//         `, [employeeIdInt]);
+
+//         if (tasks.length === 0) {
+//             return res.status(404).json({ message: 'No tasks assigned today for this employee.' });
+//         }
+//         const formattedTasks = tasks.map(task => {
+//             const assignedDate = new Date(task.assigned_date); // Convert to Date object
+
+//             // Adjust the due_date to local time
+//             task.assigned_date = assignedDate.toLocaleDateString(); // This converts to local date (e.g., 'MM/DD/YYYY')
+//             // Or you could use: task.due_date = dueDate.toISOString().split('T')[0] to keep it as 'YYYY-MM-DD'
+
+//             return task;
+//         });
+
+//         res.json(formattedTasks);
+        
+//     } catch (error) {
+//         console.error('Error fetching tasks assigned today:', error);
+//         res.status(500).json({ message: 'Error fetching tasks assigned today', error });
+//     }
+// });
+
+app.get('/api/tasks/employee/:employeeId/counts', async (req, res) => {
+    const { employeeId } = req.params;
+    const employeeIdInt = parseInt(employeeId, 10);
+  
+    if (isNaN(employeeIdInt)) {
+      return res.status(400).json({ message: 'Invalid employeeId. It must be a valid integer.' });
+    }
+  
+    try {
+      const [taskCounts] = await db.query(`
+        SELECT
+            (SELECT COUNT(*) FROM tasks WHERE employee_id = ? AND status = 'pending') AS assigned,
+            (SELECT COUNT(*) FROM tasks WHERE employee_id = ? AND status = 'completed') AS completed,
+            (SELECT COUNT(*) FROM tasks WHERE employee_id = ? AND status = 'failed') AS failed
+      `, [employeeIdInt, employeeIdInt, employeeIdInt]);
+  
+      if (taskCounts.length === 0) {
+        return res.status(404).json({ message: 'No tasks found for this employee.' });
+      }
+  
+      // Ensure the response is valid JSON
+      res.json(taskCounts[0]);
+    } catch (error) {
+      console.error('Error fetching task counts for employee:', error);
+      // Ensure the error is returned as JSON
+      res.status(500).json({ message: 'Error fetching task counts', error: error.message });
+    }
+  });
+
+  
+  
+
 
 // 🚀 Start Server
 

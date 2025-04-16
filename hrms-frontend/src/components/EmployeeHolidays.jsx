@@ -51,12 +51,12 @@ export default function EmployeeHolidays() {
   }, [employeeId]);
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
       <EmployeeSidebar employee={employee} />
       <div className="flex-1 p-6">
         <h2 className="text-2xl font-semibold mb-6">📅 Holiday List</h2>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white p-6 rounded-lg shadow-md dark:bg-gray-900">
           {loading ? (
             <div className="flex justify-center items-center h-40">
               <ClipLoader size={40} color="#2563eb" />
@@ -67,11 +67,11 @@ export default function EmployeeHolidays() {
             <>
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse border-white">
-                  <thead className="bg-gray-100 text-gray-800">
+                  <thead className="bg-gray-100 text-gray-800 ">
                     <tr>
-                      <th className="text-left p-3 border border-white">Date</th>
-                      <th className="text-left p-3 border border-white">Day</th>
-                      <th className="text-left p-3 border border-white">Holiday Name</th>
+                      <th className="text-left p-3 border border-gray-800">Date</th>
+                      <th className="text-left p-3 border border-gray-800">Day</th>
+                      <th className="text-left p-3 border border-gray-800">Holiday Name</th>
                     </tr>
                   </thead>
                   <tbody>
