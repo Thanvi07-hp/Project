@@ -1013,7 +1013,7 @@ app.put('/api/tasks/:taskId/complete', async (req, res) => {
     const { taskId } = req.params;
     try {
         // Assuming Task is your model for tasks
-        const task = await Task.findByIdAndUpdate(taskId, { status: 'completed' }, { new: true });
+        const task = await task.findByIdAndUpdate(taskId, { status: 'completed' }, { new: true });
         res.json(task);
     } catch (error) {
         console.error(error);

@@ -66,18 +66,18 @@ export default function EmployeeHolidays() {
           ) : (
             <>
               <div className="overflow-x-auto">
-                <table className="w-full border-collapse border-white">
+                <table className="w-full border-collapse dark:border-white">
                   <thead className="bg-gray-100 text-gray-800 ">
                     <tr>
-                      <th className="text-left p-3 border border-gray-800">Date</th>
-                      <th className="text-left p-3 border border-gray-800">Day</th>
-                      <th className="text-left p-3 border border-gray-800">Holiday Name</th>
+                      <th className="text-left p-3 border dark:border-gray-800">Date</th>
+                      <th className="text-left p-3 border dark:border-gray-800">Day</th>
+                      <th className="text-left p-3 border dark:border-gray-800">Holiday Name</th>
                     </tr>
                   </thead>
                   <tbody>
                     {holidays.map((holiday, index) => (
                       <tr key={index} className="border-b relative">
-                        <td className="p-3 border relative border-white">
+                        <td className="p-3 border relative dark:border-white">
                           <div
                             className={`absolute left-0 top-0 h-full w-[4px] ${
                               holiday.status === "Upcoming"
@@ -87,8 +87,8 @@ export default function EmployeeHolidays() {
                           ></div>
                           {formatDate(holiday.date)}
                         </td>
-                        <td className="p-3 border border-white">{holiday.day}</td>
-                        <td className="p-3 border border-white">{holiday.name}</td>
+                        <td className="p-3 border dark:border-white">{holiday.day}</td>
+                        <td className="p-3 border dark:border-white">{holiday.name}</td>
                       </tr>
                     ))}
                   </tbody>
