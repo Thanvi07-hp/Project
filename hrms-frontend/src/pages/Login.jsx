@@ -93,12 +93,13 @@ export default function Login() {
             </label>
             <input
               type="password"
-              placeholder=""
+              placeholder="Enter your password"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            
           </div>
 
           <div className="text-right mt-2">
@@ -114,19 +115,6 @@ export default function Login() {
             Login
           </button>
         </form>
-        {!isAdmin && (
-          <div className="mt-4 text-center">
-            <p className="text-gray-600 text-sm">
-              Don't have an account?{" "}
-              <a
-                href="/register"
-                className="text-purple-600 font-semibold hover:underline"
-              >
-                Create New Account
-              </a>
-            </p>
-          </div>
-        )}
 
       </div>
     </div>
