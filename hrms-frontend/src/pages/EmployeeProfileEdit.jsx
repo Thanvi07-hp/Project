@@ -80,6 +80,39 @@ export default function EmployeeProfileEdit() {
             alert("Error updating profile. Please try again.");
           });
       };
+      const handleRemoveDocument = (indexToRemove) => {
+  const updatedDocs = employee.documents.filter((_, idx) => idx !== indexToRemove);
+  setEmployee((prev) => ({ ...prev, documents: updatedDocs }));
+};
+
+const handleDocumentReplace = async (e, documentType) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("document", file);
+
+  try {
+    const response = await axios.post("http://localhost:5000/api/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    const newDocUrl = response.data.path;
+
+    // Update the document in the state
+    setEmployee((prev) => ({
+      ...prev,
+      [documentType]: newDocUrl,
+    }));
+  } catch (error) {
+    console.error("Replace failed:", error);
+    alert("Document replacement failed.");
+  }
+};
+
+
       
       if (!employee) return <p>Loading employee details...</p>;
         
@@ -245,44 +278,122 @@ export default function EmployeeProfileEdit() {
               )}
     
               {activeTab === "documents" && (
-                <div>
-                  <h2 className="text-lg font-semibold text-purple-500">
-                    Documents
-                  </h2>
-                  <div className="grid grid-cols-2 gap-4 mt-4">
-                    {employee.documents && employee.documents.length > 0 ? (
-                      employee.documents.slice(0, 4).map((doc, index) => (
-                        <div
-                          key={index}
-                          className="flex justify-between bg-gray-100 p-2 rounded-lg"
-                        >
-                          <span>{doc.name || `Document ${index + 1}`}</span>
-                          <div className="flex space-x-2">
-                            <a
-                              href={doc.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-500 hover:underline"
-                            >
-                              View
-                            </a>
-                            <a
-                              href={doc.url}
-                              download
-                              className="text-green-500 hover:underline"
-                            >
-                              Download
-                            </a>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-gray-500">No documents uploaded.</p>
-                    )}
+              <div>
+                <h2 className="text-lg font-semibold text-purple-500">Documents</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                  {/* Check if any document field exists and display it */}
+                  {employee.aadharCard && (
+                  <div key="aadharCard" className="flex justify-between bg-gray-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <div className="flex-1">
+                      <span className="text-gray-700">Aadhar Card</span>
+                    </div>
+                    <div className="flex space-x-2">
+                      <a href={`http://localhost:5000/${employee.aadharCard}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                        View
+                      </a>
+                      <input 
+                        type="file" 
+                        onChange={(e) => handleDocumentReplace(e, "aadharCard")} 
+                        className="text-green-500 hover:underline" 
+                        style={{ display: 'none' }} 
+                        id="aadharCardReplace"
+                      />
+                      <label 
+                        htmlFor="aadharCardReplace" 
+                        className="cursor-pointer text-orange-500 hover:underline"
+                      >
+                        Replace
+                      </label>
+                    </div>
                   </div>
+                )}
+
+                {employee.appointmentLetter && (
+                  <div key="appointmentLetter" className="flex justify-between bg-gray-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <div className="flex-1">
+                      <span className="text-gray-700">Appointment Letter</span>
+                    </div>
+                    <div className="flex space-x-2">
+                      <a href={`http://localhost:5000/${employee.appointmentLetter}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                        View
+                      </a>
+                      <input 
+                        type="file" 
+                        onChange={(e) => handleDocumentReplace(e, "appointmentLetter")} 
+                        className="text-green-500 hover:underline" 
+                        style={{ display: 'none' }} 
+                        id="appointmentLetterReplace"
+                      />
+                      <label 
+                        htmlFor="appointmentLetterReplace" 
+                        className="cursor-pointer text-orange-500 hover:underline"
+                      >
+                        Replace
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                {employee.otherDocument1 && (
+                  <div key="otherDocument1" className="flex justify-between bg-gray-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <div className="flex-1">
+                      <span className="text-gray-700">Other Document 1</span>
+                    </div>
+                    <div className="flex space-x-2">
+                      <a href={`http://localhost:5000/${employee.otherDocument1}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                        View
+                      </a>
+                      <input 
+                        type="file" 
+                        onChange={(e) => handleDocumentReplace(e, "otherDocument1")} 
+                        className="text-green-500 hover:underline" 
+                        style={{ display: 'none' }} 
+                        id="otherDocument1Replace"
+                      />
+                      <label 
+                        htmlFor="otherDocument1Replace" 
+                        className="cursor-pointer text-orange-500 hover:underline"
+                      >
+                        Replace
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                {employee.otherDocument2 && (
+                  <div key="otherDocument2" className="flex justify-between bg-gray-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <div className="flex-1">
+                      <span className="text-gray-700">Other Document 2</span>
+                    </div>
+                    <div className="flex space-x-2">
+                      <a href={`http://localhost:5000/${employee.otherDocument2}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                        View
+                      </a>
+                      <input 
+                        type="file" 
+                        onChange={(e) => handleDocumentReplace(e, "otherDocument2")} 
+                        className="text-green-500 hover:underline" 
+                        style={{ display: 'none' }} 
+                        id="otherDocument2Replace"
+                      />
+                      <label 
+                        htmlFor="otherDocument2Replace" 
+                        className="cursor-pointer text-orange-500 hover:underline"
+                      >
+                        Replace
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                  {/* If no documents are uploaded */}
+                  {!employee.aadharCard && !employee.appointmentLetter && !employee.otherDocument1 && !employee.otherDocument2 && (
+                    <p className="text-gray-500">No documents uploaded.</p>
+                  )}
                 </div>
-              )}
-    
+              </div>
+            )}
+
               {isEditing && (
                 <button
                   onClick={handleSave}

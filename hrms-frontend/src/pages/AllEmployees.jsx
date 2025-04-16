@@ -92,11 +92,11 @@ const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLa
             <div className="flex space-x-4">
               <div className="relative">
               <input
-  type="text"
-  placeholder="Search"
-  className="border p-2 pl-8 rounded-md text-black w-64"
-  onChange={(e) => setSearchQuery(e.target.value)} // Keep as-is
-/>
+                type="text"
+                placeholder="Search"
+                className="border p-2 pl-8 rounded-md text-black w-64"
+                onChange={(e) => setSearchQuery(e.target.value)} // Keep as-is
+              />
                 <FiSearch className="absolute left-2 top-3 text-gray-500" />
               </div>
               <button className="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center" onClick={() => navigate("/add-employee")}>

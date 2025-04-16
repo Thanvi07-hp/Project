@@ -149,12 +149,6 @@ app.post("/api/reset-password-simple", async (req, res) => {
   });
 
 
-
-  
-  
-
-
-
 // 🔹 Get All Employees (Move below verifyToken)
 app.get("/api/employees", async (req, res) => {
     try {

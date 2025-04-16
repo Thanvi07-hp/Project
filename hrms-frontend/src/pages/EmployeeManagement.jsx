@@ -210,82 +210,82 @@ export default function EmployeeManagement() {
             </div>
           )}
 
-{activeTab === "documents" && (
-  <div>
-    <h2 className="text-lg font-semibold text-purple-500">Documents</h2>
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-      {/* Check if any document field exists and display it */}
-      {employee.aadharCard && (
-        <div key="aadharCard" className="flex justify-between bg-gray-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
-          <div className="flex-1">
-            <span className="text-gray-700">Aadhar Card</span>
-          </div>
-          <div className="flex space-x-2">
-            <a href={`http://localhost:5000/${employee.aadharCard}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-              View
-            </a>
-            <a href={`http://localhost:5000/${employee.aadharCard}`} download className="text-green-500 hover:underline">
-              Download
-            </a>
-          </div>
-        </div>
-      )}
+            {activeTab === "documents" && (
+              <div>
+                <h2 className="text-lg font-semibold text-purple-500">Documents</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                  {/* Check if any document field exists and display it */}
+                  {employee.aadharCard && (
+                    <div key="aadharCard" className="flex justify-between bg-gray-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
+                      <div className="flex-1">
+                        <span className="text-gray-700">Aadhar Card</span>
+                      </div>
+                      <div className="flex space-x-2">
+                        <a href={`http://localhost:5000/${employee.aadharCard}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                          View
+                        </a>
+                        <a href={`http://localhost:5000/${employee.aadharCard}`} download className="text-green-500 hover:underline">
+                          Download
+                        </a>
+                      </div>
+                    </div>
+                  )}
 
-      {employee.appointmentLetter && (
-        <div key="appointmentLetter" className="flex justify-between bg-gray-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
-          <div className="flex-1">
-            <span className="text-gray-700">Appointment Letter</span>
-          </div>
-          <div className="flex space-x-2">
-            <a href={`http://localhost:5000/${employee.appointmentLetter}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-              View
-            </a>
-            <a href={`http://localhost:5000/${employee.appointmentLetter}`} download className="text-green-500 hover:underline">
-              Download
-            </a>
-          </div>
-        </div>
-      )}
+                  {employee.appointmentLetter && (
+                    <div key="appointmentLetter" className="flex justify-between bg-gray-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
+                      <div className="flex-1">
+                        <span className="text-gray-700">Appointment Letter</span>
+                      </div>
+                      <div className="flex space-x-2">
+                        <a href={`http://localhost:5000/${employee.appointmentLetter}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                          View
+                        </a>
+                        <a href={`http://localhost:5000/${employee.appointmentLetter}`} download className="text-green-500 hover:underline">
+                          Download
+                        </a>
+                      </div>
+                    </div>
+                  )}
 
-      {employee.otherDocument1 && (
-        <div key="otherDocument1" className="flex justify-between bg-gray-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
-          <div className="flex-1">
-            <span className="text-gray-700">Other Document 1</span>
-          </div>
-          <div className="flex space-x-2">
-            <a href={`http://localhost:5000/${employee.otherDocument1}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-              View
-            </a>
-            <a href={`http://localhost:5000/${employee.otherDocument1}`} download className="text-green-500 hover:underline">
-              Download
-            </a>
-          </div>
-        </div>
-      )}
+                  {employee.otherDocument1 && (
+                    <div key="otherDocument1" className="flex justify-between bg-gray-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
+                      <div className="flex-1">
+                        <span className="text-gray-700">Other Document 1</span>
+                      </div>
+                      <div className="flex space-x-2">
+                        <a href={`http://localhost:5000/${employee.otherDocument1}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                          View
+                        </a>
+                        <a href={`http://localhost:5000/${employee.otherDocument1}`} download className="text-green-500 hover:underline">
+                          Download
+                        </a>
+                      </div>
+                    </div>
+                  )}
 
-      {employee.otherDocument2 && (
-        <div key="otherDocument2" className="flex justify-between bg-gray-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
-          <div className="flex-1">
-            <span className="text-gray-700">Other Document 2</span>
-          </div>
-          <div className="flex space-x-2">
-            <a href={`http://localhost:5000/${employee.otherDocument2}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-              View
-            </a>
-            <a href={`http://localhost:5000/${employee.otherDocument2}`} download className="text-green-500 hover:underline">
-              Download
-            </a>
-          </div>
-        </div>
-      )}
+                  {employee.otherDocument2 && (
+                    <div key="otherDocument2" className="flex justify-between bg-gray-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-all">
+                      <div className="flex-1">
+                        <span className="text-gray-700">Other Document 2</span>
+                      </div>
+                      <div className="flex space-x-2">
+                        <a href={`http://localhost:5000/${employee.otherDocument2}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                          View
+                        </a>
+                        <a href={`http://localhost:5000/${employee.otherDocument2}`} download className="text-green-500 hover:underline">
+                          Download
+                        </a>
+                      </div>
+                    </div>
+                  )}
 
-      {/* If no documents are uploaded */}
-      {!employee.aadharCard && !employee.appointmentLetter && !employee.otherDocument1 && !employee.otherDocument2 && (
-        <p className="text-gray-500">No documents uploaded.</p>
-      )}
-    </div>
-  </div>
-)}
+                  {/* If no documents are uploaded */}
+                  {!employee.aadharCard && !employee.appointmentLetter && !employee.otherDocument1 && !employee.otherDocument2 && (
+                    <p className="text-gray-500">No documents uploaded.</p>
+                  )}
+                </div>
+              </div>
+            )}
 
 
 

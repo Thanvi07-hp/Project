@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import EmployeeSidebar from './EmployeeSidebar';
+import { useNavigate } from "react-router-dom";
 
 const EmployeeTask = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true); // To handle loading state
   const [error, setError] = useState(null); // To handle any errors
+  const [employee, setEmployee] = useState(null);
+  const navigate = useNavigate();
+
 
   // Get the employeeId from local storage
   const employeeId = localStorage.getItem('employeeId'); 
@@ -17,26 +21,25 @@ const EmployeeTask = () => {
     }
     
     // Fetch tasks for the logged-in employee
-    const fetchTasks = async () => {
+    const fetchEmployeeAndTasks = async () => {
       try {
-        setLoading(true);
-        
-        const response = await fetch(`http://localhost:5000/api/tasks/employee/${employeeId}`); // Fetch tasks for the logged-in employee
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch tasks');
-        }
-
-        const data = await response.json();
-        setTasks(data); // Store the tasks in state
+        const empRes = await fetch(`http://localhost:5000/api/employees/${employeeId}`);
+        if (!empRes.ok) throw new Error('Failed to fetch employee');
+        const empData = await empRes.json();
+        setEmployee(empData);
+  
+        const taskRes = await fetch(`http://localhost:5000/api/tasks/employee/${employeeId}`);
+        if (!taskRes.ok) throw new Error('Failed to fetch tasks');
+        const taskData = await taskRes.json();
+        setTasks(taskData);
       } catch (err) {
-        setError(err.message); // Handle any errors that occur
+        setError(err.message);
       } finally {
-        setLoading(false); // Set loading to false once the request is complete
+        setLoading(false);
       }
     };
-
-    fetchTasks(); // Call fetchTasks when employeeId is available
+  
+    fetchEmployeeAndTasks();
   }, [employeeId]);
 
   const handleMarkAsCompleted = async (taskId) => {
@@ -70,7 +73,7 @@ const EmployeeTask = () => {
   // Render the tasks or a loading/error message
   return (
     <div className="flex bg-gray-100 dark:bg-gray-900">
-      <EmployeeSidebar />
+    <EmployeeSidebar employee={employee} />
 
       <div className="mx-auto p-6 w-full">
         <h2 className="text-4xl font-bold text-center mb-6">Employee Tasks</h2>
