@@ -24,6 +24,7 @@ app.use("/api/attendance", require("./routes/attendanceRoutes"));
 
 app.use(otpRoutes);
 
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 
@@ -115,10 +116,7 @@ app.post("/api/login", async (req, res) => {
 app.post("/api/reset-password-simple", async (req, res) => {
     const { email, newPassword, userType } = req.body;
 
-//     console.log(" Password reset request received:");
-//   console.log("User Type:", userType);
-//   console.log("Email:", email);
-//   console.log("New Password (plaintext):", newPassword);
+
   
     try {
       const table = userType === "admin" ? "admins" : "employees";
@@ -161,7 +159,6 @@ app.get("/api/employees", async (req, res) => {
 });
 
 
-app.use('/uploads', express.static('uploads'));
 
 // Multer configuration
 const storage = multer.diskStorage({
@@ -175,9 +172,7 @@ const storage = multer.diskStorage({
   });
 
   const upload = multer({ storage });
-
-
-
+  
   
   // Add employee route
   

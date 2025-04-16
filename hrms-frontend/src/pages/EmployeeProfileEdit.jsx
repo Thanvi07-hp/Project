@@ -87,30 +87,39 @@ export default function EmployeeProfileEdit() {
 
 const handleDocumentReplace = async (e, documentType) => {
   const file = e.target.files[0];
-  if (!file) return;
+  if (!file || !employee?.id) return;
 
   const formData = new FormData();
   formData.append("document", file);
 
   try {
-    const response = await axios.post("http://localhost:5000/api/upload", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await axios.post(
+      `http://localhost:5000/api/replace-document/${employee.id}/${documentType}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
 
-    const newDocUrl = response.data.path;
+    if (response.status === 200 && response.data.path) {
+      const newDocUrl = response.data.path;
 
-    // Update the document in the state
-    setEmployee((prev) => ({
-      ...prev,
-      [documentType]: newDocUrl,
-    }));
+      setEmployee((prev) => ({
+        ...prev,
+        [documentType]: newDocUrl,
+      }));
+    } else {
+      throw new Error("File upload failed.");
+    }
   } catch (error) {
     console.error("Replace failed:", error);
-    alert("Document replacement failed.");
+    alert("Document replacement failed. Please try again.");
   }
 };
+
+
 
 
       
