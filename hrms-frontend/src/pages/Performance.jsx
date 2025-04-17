@@ -26,16 +26,18 @@ const Performance = () => {
       try {
         const response = await fetch(`http://localhost:5000/api/tasks/employee/${employeeId}/counts`);
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+          const errorDetails = await response.text();
+          throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorDetails}`);
         }
-
+    
         const data = await response.json();
-        console.log("Fetched Task Data:", data); // Log the response here to inspect it
-
+        console.log("Fetched Task Data:", data);
+    
+        // Check if the data is in the expected format
         if (data && data.assigned !== undefined && data.completed !== undefined && data.failed !== undefined) {
           setTaskData(data);
         } else {
-          console.error("Data structure is unexpected:", data);
+          console.error("Unexpected data structure:", data);
           setError('Unexpected data structure from the API.');
         }
       } catch (error) {
@@ -45,6 +47,7 @@ const Performance = () => {
         setLoading(false);
       }
     };
+    
 
     fetchTaskData();
   }, [employeeId]);
