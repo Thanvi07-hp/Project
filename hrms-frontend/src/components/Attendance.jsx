@@ -14,7 +14,7 @@ const Attendance = () => {
   const [filter, setFilter] = useState("");
 
   useEffect(() => {
-    if (employees.length === 0) fetchEmployees();
+    fetchEmployees();
   }, []);
 
   const fetchEmployees = async () => {

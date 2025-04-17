@@ -87,37 +87,37 @@ export default function EmployeeProfileEdit() {
 
 const handleDocumentReplace = async (e, documentType) => {
   const file = e.target.files[0];
-  if (!file || !employee?.id) return;
+  if (!file) return;
 
   const formData = new FormData();
-  formData.append("document", file);
+  formData.append('document', file);
+  formData.append('documentType', documentType); // The field to replace in the database
 
   try {
-    const response = await axios.post(
-      `http://localhost:5000/api/replace-document/${employee.id}/${documentType}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.put(`http://localhost:5000/api/employees/${id}/replace-doc`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
 
-    if (response.status === 200 && response.data.path) {
-      const newDocUrl = response.data.path;
-
+    if (response.data.success) {
+      alert('Document replaced successfully!');
       setEmployee((prev) => ({
         ...prev,
-        [documentType]: newDocUrl,
+        [documentType]: response.data.newDocUrl, // Update the UI with the new document path
       }));
     } else {
-      throw new Error("File upload failed.");
+      alert('Failed to replace document.');
     }
   } catch (error) {
-    console.error("Replace failed:", error);
-    alert("Document replacement failed. Please try again.");
+    console.error('Replace failed:', error.response?.data || error.message); // Log detailed error information
+    if (error.response) {
+      console.error('Backend error response:', error.response.data); // Log the backend error response
+    }
+    alert('Document replacement failed.');
   }
 };
+
 
 
 
