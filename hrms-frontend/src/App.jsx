@@ -6,9 +6,6 @@ import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import AllEmployees from "./pages/AllEmployees";
 import AddEmployee from "./pages/AddEmployee";
-import ForgotPassword from "./pages/ForgotPassword";
-import VerifyOTP from "./pages/VerifyOTP";
-import ResetPassword from "./pages/ResetPassword";
 import Payroll from "./components/Payroll";
 import EditEmployee from "./components/EditEmployee";
 import EmployeeManagement from "./pages/EmployeeManagement";
@@ -47,9 +44,6 @@ function MainContent() {
 
   const hideSidebarRoutes = [
     "/login",
-    "/forgot-password",
-    "/verify-otp",
-    "/reset-password",
     "/employee-dashboard",
     "/emp-attendance",
     "/emp-payroll",
@@ -68,9 +62,6 @@ function MainContent() {
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/verify-otp" element={<VerifyOTP />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
           <Route path="/all-employees" element={<AllEmployees />} />

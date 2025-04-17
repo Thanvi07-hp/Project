@@ -238,6 +238,55 @@ router.get("/payroll/:employeeId", async (req, res) => {
   }
 });
 
+// Change Employee Password (Secured with JWT)
+router.put("/:employeeId/change-password", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized - No token provided" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, "your_secret_key"); // Replace with your actual secret
+    const authenticatedId = decoded.id;
+    const { employeeId } = req.params;
+
+    // Ensure the logged-in user is trying to change their own password
+    if (parseInt(employeeId) !== authenticatedId) {
+      return res.status(403).json({ error: "You are not allowed to change this password" });
+    }
+
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ error: "Old and new passwords are required" });
+    }
+
+    const [rows] = await db.execute(
+      "SELECT password FROM employees WHERE employeeId = ?",
+      [employeeId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Employee not found" });
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, rows[0].password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Old password is incorrect" });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    await db.execute(
+      "UPDATE employees SET password = ? WHERE employeeId = ?",
+      [hashedNewPassword, employeeId]
+    );
+
+    res.json({ message: "Password updated successfully" });
+  } catch (err) {
+    console.error("Error changing password:", err);
+    res.status(500).json({ error: "Failed to change password" });
+  }
+});
 
 
 module.exports = router;
