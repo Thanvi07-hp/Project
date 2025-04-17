@@ -7,8 +7,8 @@ const EmployeeTask = () => {
   const [loading, setLoading] = useState(true); // To handle loading state
   const [error, setError] = useState(null); // To handle any errors
   const [employee, setEmployee] = useState(null);
+  const [noTasksMessage, setNoTasksMessage] = useState(''); // To handle no tasks message
   const navigate = useNavigate();
-
 
   // Get the employeeId from local storage
   const employeeId = localStorage.getItem('employeeId'); 
@@ -19,35 +19,38 @@ const EmployeeTask = () => {
       setLoading(false);
       return;
     }
-    
+
     // Fetch tasks for the logged-in employee
     const fetchEmployeeAndTasks = async () => {
       try {
+        // Fetch employee data
         const empRes = await fetch(`http://localhost:5000/api/employees/${employeeId}`);
         if (!empRes.ok) throw new Error('Failed to fetch employee');
         const empData = await empRes.json();
         setEmployee(empData);
 
-        
-        
-        if (data && data.length === 0) {
+        // Fetch tasks data
+        const taskRes = await fetch(`http://localhost:5000/api/tasks/employee/${employeeId}`);
+        if (!taskRes.ok) throw new Error('Failed to fetch tasks');
+        const taskData = await taskRes.json(); // Corrected to use taskData
+
+        if (taskData && taskData.length === 0) {
           setTasks([]); 
-          setNoTasksMessage("No tasks found for this employee."); 
+          setNoTasksMessage("No tasks found for this employee.");
         } else {
-          setTasks(data); 
+          setTasks(taskData); 
           setNoTasksMessage(""); 
         }
-    
+
       } catch (err) {
-         
+        // Handle error and set the message
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchEmployeeAndTasks();
   }, [employeeId]);
-
 
   const handleMarkAsCompleted = async (taskId) => {
     try {
@@ -69,7 +72,7 @@ const EmployeeTask = () => {
         )
       );
     } catch (err) {
-      setError(err.message);
+      setError(err.message); // Set error in case of failure
     }
   };
 
@@ -80,7 +83,7 @@ const EmployeeTask = () => {
   // Render the tasks or a loading/error message
   return (
     <div className="flex bg-gray-100 dark:bg-gray-900">
-    <EmployeeSidebar employee={employee} />
+      <EmployeeSidebar employee={employee} />
 
       <div className="mx-auto p-6 w-full">
         <h2 className="text-4xl font-bold text-center mb-6">Employee Tasks</h2>
@@ -93,11 +96,11 @@ const EmployeeTask = () => {
           <>
             {/* Pending Tasks Section */}
             <div className="mb-6">
+            <h3 className="text-2xl font-semibold mb-4">Pending Tasks</h3>
               {pendingTasks.length === 0 ? (
-                <div className='bg-white shadow rounded p-6 dark:bg-gray-900'>
-                  <h3 className="text-2xl font-semibold mb-4">Pending Tasks</h3>
-
-                <p className='text-center'>No pending tasks available.</p>
+                <div className='bg-white shadow rounded p-6 dark:bg-gray-800'>
+                 
+                  <p className='text-center'>No pending tasks available.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 overflow-y-auto max-h-96">
@@ -133,19 +136,21 @@ const EmployeeTask = () => {
 
             {/* Completed Tasks Section */}
             <div>
+            <h3 className="text-2xl font-semibold mb-4">Completed Tasks</h3>
               {completedTasks.length === 0 ? (
-                <div className='bg-white shadow rounded p-6 dark:bg-gray-900'>
+                <div className='bg-white shadow rounded p-6 dark:bg-gray-800'>
                   
-                <h3 className="text-2xl font-semibold mb-4 ">Completed Tasks</h3>
-                <p className='text-center'>No completed tasks available.</p>
+                  <p className='text-center'>No completed tasks available.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 overflow-y-auto max-h-96">
+                  
                   {completedTasks.map((task) => (
                     <div
-                    key={task.id}
-                    className="bg-gray-200 p-6 shadow-lg rounded-lg transition mt-4"
+                      key={task.id}
+                      className="bg-gray-200 p-6 shadow-lg rounded-lg transition mt-4"
                     >
+                      
                       <h3 className="text-xl font-semibold text-gray-900">{task.task_name}</h3>
                       <p className="text-gray-600 mt-2">{task.task_description}</p>
                       <p className="text-gray-500 mt-2">
