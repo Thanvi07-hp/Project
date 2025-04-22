@@ -3,6 +3,9 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import EmployeeSidebar from "../components/EmployeeSidebar";
 import { FaEdit, FaUser, FaBriefcase, FaFileAlt } from "react-icons/fa";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+
 
 export default function EmployeeProfileEdit() {
   const { id } = useParams();
@@ -12,6 +15,15 @@ export default function EmployeeProfileEdit() {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("personal");
   const [error, setError] = useState(null);
+  const [passwordData, setPasswordData] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
 
   const formatDateOnly = (isoDate) => {
     if (!isoDate) return null;
@@ -44,6 +56,12 @@ export default function EmployeeProfileEdit() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData((prev) => ({ ...prev, [name]: value }));
+  };
+  
+
   const handleSave = () => {
     console.log("Trying to update employee with ID:", id);
     const updatedData = {
@@ -51,8 +69,6 @@ export default function EmployeeProfileEdit() {
       dob: formatDateOnly(formData.dob),
       joiningDate: formatDateOnly(formData.joiningDate),
     };
-
-    console.log("Sending this payload:", updatedData);
 
     fetch(`http://localhost:5000/api/employees/${id}`, {
       method: "PUT",
@@ -65,24 +81,20 @@ export default function EmployeeProfileEdit() {
         console.log("Response status:", res.status);
         return res.json();
       })
-      .then((data) => {
-        console.log("Response data:", data);
-        if (data.message) {
-          alert("Profile updated successfully!");
-          setEmployee(formData);
-          setIsEditing(false);
-        } else {
-          alert("Something went wrong while updating.");
-        }
-      })
-      .catch((error) => {
-        console.error("Error updating employee:", error);
-        alert("Error updating profile. Please try again.");
-      });
-  };
-  const handleRemoveDocument = (indexToRemove) => {
-    const updatedDocs = employee.documents.filter((_, idx) => idx !== indexToRemove);
-    setEmployee((prev) => ({ ...prev, documents: updatedDocs }));
+      .then((res) => res.json())
+    .then((data) => {
+      if (data.message) {
+        toast.success("Profile updated successfully!");
+        setEmployee(formData);
+        setIsEditing(false);
+      } else {
+        toast.error("Something went wrong while updating.");
+      }
+    })
+    .catch((error) => {
+      console.error("Error updating employee:", error);
+      toast.error("Error updating profile. Please try again.");
+    });
   };
 
   const handleDocumentReplace = async (e, documentType) => {
@@ -118,14 +130,44 @@ export default function EmployeeProfileEdit() {
     }
   };
 
-
-
-
+  const handlePasswordUpdate = async () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      return toast.error("New passwords do not match.");
+    }
+  
+    const token = localStorage.getItem("token"); // Assuming you store JWT in localStorage
+  
+    try {
+      const response = await fetch(`http://localhost:5000/api/employees/${id}/change-password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Attach token
+        },
+        body: JSON.stringify(passwordData),
+      });
+  
+      const result = await response.json();
+  
+      if (response.ok) {
+        toast.success("Password updated successfully!");
+        setPasswordData({ oldPassword: "", newPassword: "", confirmPassword: "" });
+      } else {
+        toast.error(result.error || "Failed to update password.");
+      }
+    } catch (err) {
+      console.error("Password update failed:", err);
+      toast.error("Something went wrong.");
+    }
+  };
+  
 
 
   if (!employee) return <p>Loading employee details...</p>;
 
   return (
+    <>
+    <ToastContainer />
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white">
       <EmployeeSidebar employee={employee} />
       <div className="flex-1 p-6">
@@ -140,6 +182,13 @@ export default function EmployeeProfileEdit() {
           >
             <FaEdit className="mr-2" /> {isEditing ? "Cancel" : "Edit Profile"}
           </button>
+          <button
+            onClick={() => setActiveTab("changePassword")}
+            className="flex items-center bg-purple-500 text-white px-4 py-2 rounded-lg ml-4"
+          >
+            🔒 Change Password
+          </button>
+
         </div>
 
         <div className="bg-white p-6 mt-4 shadow-md rounded-lg flex items-center dark:bg-gray-800 dark:text-white-800">
@@ -400,6 +449,86 @@ export default function EmployeeProfileEdit() {
             </div>
           )}
 
+        {activeTab === "changePassword" && (
+          <div>
+            <h2 className="text-lg font-semibold text-purple-500 mb-4">Change Password</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Old Password */}
+              <div>
+                <label className="font-semibold">Old Password</label>
+                <div className="relative">
+                  <input
+                    type={showOldPassword ? "text" : "password"}
+                    name="oldPassword"
+                    value={passwordData.oldPassword}
+                    onChange={handlePasswordChange}
+                    className="w-full mt-1 p-2 border border-gray-300 rounded-md pr-10"
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                    onClick={() => setShowOldPassword((prev) => !prev)}
+                  >
+                    {showOldPassword ? "🙈" : "👁️"}
+                  </button>
+                </div>
+              </div>
+
+              {/* New Password */}
+              <div>
+                <label className="font-semibold">New Password</label>
+                <div className="relative">
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    name="newPassword"
+                    value={passwordData.newPassword}
+                    onChange={handlePasswordChange}
+                    className="w-full mt-1 p-2 border border-gray-300 rounded-md pr-10"
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                    onClick={() => setShowNewPassword((prev) => !prev)}
+                  >
+                    {showNewPassword ? "🙈" : "👁️"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label className="font-semibold">Confirm New Password</label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    value={passwordData.confirmPassword}
+                    onChange={handlePasswordChange}
+                    className="w-full mt-1 p-2 border border-gray-300 rounded-md pr-10"
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  >
+                    {showConfirmPassword ? "🙈" : "👁️"}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={handlePasswordUpdate}
+              className="mt-4 bg-purple-600 text-white px-6 py-2 rounded-lg"
+            >
+              Save Password
+            </button>
+          </div>
+        )}
+
+
+
+
           {isEditing && (
             <button
               onClick={handleSave}
@@ -411,5 +540,6 @@ export default function EmployeeProfileEdit() {
         </div>
       </div>
     </div>
+    </>
   );
 }    

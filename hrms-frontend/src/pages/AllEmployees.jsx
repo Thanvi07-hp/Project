@@ -54,7 +54,6 @@ export default function AllEmployees() {
     return (
       emp.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       emp.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.employeeId.toString().includes(searchQuery) ||
       emp.department?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       emp.designation?.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -114,11 +113,9 @@ const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLa
               <thead>
                 <tr className="border-b">
                   <th className="py-2">Employee Name</th>
-                  <th>Employee ID</th>
                   <th>Department</th>
                   <th>Designation</th>
                   <th>Type</th>
-                  <th>Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -139,11 +136,9 @@ const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLa
                       {/* <img src={emp.profilePic || "../assets/default-avatar.jpg"} alt="profile" className="w-8 h-8 rounded-full" /> */}
                       <span>{`${emp.firstName} ${emp.lastName}`}</span>
                     </td>
-                    <td>{emp.employeeId}</td>
                     <td>{emp.department || "N/A"}</td>
                     <td>{emp.designation || "N/A"}</td>
                     <td>{emp.type}</td>
-                    <td className="text-blue-600 cursor-pointer">{emp.status}</td>
                     <td>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleEdit(emp.employeeId); }}

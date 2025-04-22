@@ -328,11 +328,11 @@ const Task = () => {
             {(showAllTasks ? tasks : tasks.slice(0, 3))
         .filter(task => task.status !== 'completed') // Filter out completed tasks
         .map((task) => (
-                        <div key={task.id} className={`bg-white p-6 shadow-lg rounded-lg hover:shadow-xl transition mt-10 ${isTaskDueToday(task.due_date) ? 'bg-yellow-50 border-l-4 border-red-500' : 'bg-green-100 border-l-4 border-green-500'}`}>
-                            <h3 className="text-xl font-semibold text-gray-900">{task.task_name}</h3>
-                            <p className="text-gray-600 mt-2">{task.task_description}</p>
-                            <p className="text-gray-500 mt-2">Assigned to: {task.employee_name}</p>
-                            <p className="text-gray-500 mt-2">Due Date: {task.due_date}</p>
+                        <div key={task.id} className={`bg-white p-6 shadow-lg rounded-lg hover:shadow-xl transition mt-10 dark:bg-gray-800 ${isTaskDueToday(task.due_date) ? 'bg-yellow-50 border-l-4 border-red-500' : 'bg-green-100 border-l-4 border-green-500'}`}>
+                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{task.task_name}</h3>
+                            <p className="text-gray-600 mt-2 dark:text-white">{task.task_description}</p>
+                            <p className="text-gray-500 mt-2 dark:text-white">Assigned to: {task.employee_name}</p>
+                            <p className="text-gray-500 mt-2 dark:text-white">Due Date: {task.due_date}</p>
 
                             {/* Task Action Buttons */}
                             <div className="flex gap-2 mt-4">
@@ -384,13 +384,13 @@ const Task = () => {
                     <ul className="space-y-4 mt-4 max-h-96 overflow-y-auto m-5">
                         {failedTasks && failedTasks.length > 0 ? (
                             failedTasks.map((task) => (
-                                <li key={task.id} className="bg-white p-4 shadow-md rounded-lg border-l-4 border-red-500 hover:shadow-lg transition">
+                                <li key={task.id} className="bg-white p-4 shadow-md rounded-lg border-l-4 border-red-500 hover:shadow-lg transition dark:bg-gray-800 ">
                                     <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                                         <div>
-                                            <h3 className="text-xl font-semibold text-gray-900">{task.task_name}</h3>
-                                            <p className="text-gray-600">{task.task_description}</p>
-                                            <p className="text-gray-500">Assigned to: {task.employee_name}</p>
-                                            <p className="text-gray-500">Due Date:{task.due_date}</p>
+                                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{task.task_name}</h3>
+                                            <p className="text-gray-600 dark:text-white">{task.task_description}</p>
+                                            <p className="text-gray-500 dark:text-white">Assigned to: {task.employee_name}</p>
+                                            <p className="text-gray-500 dark:text-white">Due Date:{task.due_date}</p>
                                         </div>
                                     </div>
                                 </li>
@@ -406,13 +406,13 @@ const Task = () => {
                         {/* Add completed tasks rendering logic here */}
                         {/* You can filter tasks by their `status` value */}
                         {tasks.filter(task => task.status === 'completed').map((task) => (
-                            <li key={task.id} className="bg-white p-4 shadow-md rounded-lg border-l-4 border-green-500 hover:shadow-lg transition">
+                            <li key={task.id} className="bg-white p-4 shadow-md rounded-lg border-l-4 border-green-500 hover:shadow-lg transition dark:bg-gray-800">
                                 <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                                     <div>
-                                        <h3 className="text-xl font-semibold text-gray-900">{task.task_name}</h3>
-                                        <p className="text-gray-600">{task.task_description}</p>
-                                        <p className="text-gray-500">Assigned to: {task.employee_name}</p>
-                                        <p className="text-gray-500">Due Date: {task.due_date}</p>
+                                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{task.task_name}</h3>
+                                        <p className="text-gray-600 dark:text-white">{task.task_description}</p>
+                                        <p className="text-gray-500 dark:text-white">Assigned to: {task.employee_name}</p>
+                                        <p className="text-gray-500 dark:text-white">Due Date: {task.due_date}</p>
                                     </div>
                                 </div>
                             </li>

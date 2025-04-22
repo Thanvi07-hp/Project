@@ -10,7 +10,6 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const employeeRoutes = require("./routes/employeeRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
-const otpRoutes = require("./routes/otpRoutes");
 const db = require("./db");
 
 const app = express();
@@ -21,8 +20,6 @@ app.use(cors());
 
 app.use("/api/employees", require("./routes/employeeRoutes"));
 app.use("/api/attendance", require("./routes/attendanceRoutes"));
-
-app.use(otpRoutes);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -112,44 +109,6 @@ app.post("/api/login", async (req, res) => {
 });
 
 
-//Reset Password
-app.post("/api/reset-password-simple", async (req, res) => {
-    const { email, newPassword, userType } = req.body;
-
-    //     console.log(" Password reset request received:");
-    //   console.log("User Type:", userType);
-    //   console.log("Email:", email);
-    //   console.log("New Password (plaintext):", newPassword);
-
-    try {
-        const table = userType === "admin" ? "admins" : "employees";
-
-        const [rows] = await db.execute(`SELECT * FROM ${table} WHERE email = ?`, [email]);
-
-        if (rows.length === 0) {
-            console.log(" No user found with email:", email);
-            return res.status(404).json({ message: "User not found." });
-        }
-
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-        //   console.log("Hashed password:", hashedPassword);
-
-
-        await db.execute(`UPDATE ${table} SET password = ? WHERE email = ?`, [
-            hashedPassword,
-            email,
-        ]);
-
-        res.status(200).json({ message: "Password updated successfully." });
-
-    } catch (error) {
-        console.error("Reset error:", error);
-        res.status(500).json({ message: "Internal server error." });
-    }
-});
-
-
 // 🔹 Get All Employees (Move below verifyToken)
 app.get("/api/employees", async (req, res) => {
     try {
@@ -176,11 +135,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-
-
-
 // Add employee route
-
 app.post(
     "/api/employees",
     upload.fields([
