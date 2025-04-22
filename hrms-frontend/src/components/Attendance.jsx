@@ -106,7 +106,6 @@ const Attendance = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Check-in Time</TableHead>
                 <TableHead>Status</TableHead>
@@ -119,7 +118,6 @@ const Attendance = () => {
                 emp.lastName.toLowerCase().includes(filter)
               ).map((emp) => (
                 <TableRow key={emp.employeeId}>
-                  <TableCell>{emp.employeeId}</TableCell>
                   <TableCell>{emp.firstName} {emp.lastName}</TableCell>
                   <TableCell>
                     {emp.check_in_time && emp.check_in_time.includes("T")
