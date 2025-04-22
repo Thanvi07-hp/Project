@@ -206,7 +206,7 @@ const AdminDashboard = () => {
           { title: "Total Employee", value: employees.length },
           { title: "Today Attendance", value: attendance.length }, // Only present employees will be shown here
           { title: "Total Tasks", value: tasks.length },
-          { title: "Completed Tasks", value: tasks.filter(task => task.status === "Completed").length },
+          { title: "Completed Tasks", value: tasks.filter(task => task.status === "completed").length },
         ].map((stat, index) => (
           <div
             key={index}
