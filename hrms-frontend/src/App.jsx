@@ -15,8 +15,9 @@ import EmployeeAttendance from "./components/EmployeeAttendance";
 import EmployeePayroll from "./components/EmployeePayroll";
 import EmployeeHolidays from "./components/EmployeeHolidays";
 import AddAdmin from "./components/AddAdmin"; 
-import PrivateRoute from './components/PrivateRoute';
+
 import { ToastContainer } from "react-toastify";
+
 import HolidayPage from "./components/HolidayPage";
 import Task from "./pages/Task";
 import "react-toastify/dist/ReactToastify.css";
@@ -25,11 +26,16 @@ import EmployeeTask from "./components/EmployeeTask";
 
 
 function App() {
+
+
   return (
+    
+    
     <Router>   
       <MainContent />
       <ToastContainer position="top-right" autoClose={3000} />
     </Router>
+     
   );
 }
 
@@ -43,8 +49,8 @@ function MainContent() {
     "/emp-payroll",
     "/emp-holidays",
     "/emp-task"
+
   ];
-  
   const shouldHideSidebar = hideSidebarRoutes.includes(location.pathname) ||
     matchPath("/edit-profile/:id", location.pathname);
 
@@ -55,24 +61,25 @@ function MainContent() {
         <ThemeToggle />
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/login" element={<Login />} /> {/* No PrivateRoute for login */}
-          <Route path="/admin-dashboard" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
-          <Route path="/employee-dashboard" element={<PrivateRoute><EmployeeDashboard /></PrivateRoute>} />
-          <Route path="/all-employees" element={<PrivateRoute><AllEmployees /></PrivateRoute>} />
-          <Route path="/add-employee" element={<PrivateRoute><AddEmployee /></PrivateRoute>} />
-          <Route path="/edit-employee/:employeeId" element={<PrivateRoute><EditEmployee /></PrivateRoute>} />
-          <Route path="/employee-management/:id" element={<PrivateRoute><EmployeeManagement /></PrivateRoute>} />
-          <Route path="/attendance" element={<PrivateRoute><Attendance /></PrivateRoute>} />
-          <Route path="/task" element={<PrivateRoute><Task /></PrivateRoute>} />
-          <Route path="/payroll" element={<PrivateRoute><Payroll /></PrivateRoute>} />
-          <Route path="/holidays" element={<PrivateRoute><HolidayPage /></PrivateRoute>} />
-          <Route path="/add-admin" element={<PrivateRoute><AddAdmin /></PrivateRoute>} />
-          <Route path="/edit-profile/:id" element={<PrivateRoute><EmployeeProfileEdit /></PrivateRoute>} />
-          <Route path="/emp-attendance" element={<PrivateRoute><EmployeeAttendance /></PrivateRoute>} /> 
-          <Route path="/emp-payroll" element={<PrivateRoute><EmployeePayroll /></PrivateRoute>} />
-          <Route path="/emp-holidays" element={<PrivateRoute><EmployeeHolidays /></PrivateRoute>} />
-          <Route path="/emp-task" element={<PrivateRoute><EmployeeTask /></PrivateRoute>} />
-        </Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
+          <Route path="/all-employees" element={<AllEmployees />} />
+          <Route path="/add-employee" element={<AddEmployee />} />
+          <Route path="/edit-employee/:employeeId" element={<EditEmployee />} />
+          <Route path="/employee-management/:id" element={<EmployeeManagement />} />
+          <Route path="/attendance" element={<Attendance />} />
+          <Route path="/task" element={<Task />} />
+          <Route path="/payroll" element={<Payroll />} />
+          <Route path="/holidays" element={<HolidayPage />} />
+          <Route path="/add-admin" element={<AddAdmin />} />
+          <Route path="/edit-profile/:id" element={<EmployeeProfileEdit />} />
+          <Route path="/emp-attendance" element={<EmployeeAttendance />} /> 
+          <Route path="/emp-payroll" element={<EmployeePayroll />} />
+          <Route path="/emp-holidays" element={<EmployeeHolidays />} />
+          <Route path="/emp-task" element={<EmployeeTask />} />
+
+          </Routes>
       </div>
     </div>
   );

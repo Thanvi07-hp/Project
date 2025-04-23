@@ -10,7 +10,6 @@ const bodyParser = require("body-parser");
 const employeeRoutes = require("./routes/employeeRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const db = require("./db");
-const authenticateToken = require('./routes/authMiddleware');
 
 const app = express();
 app.use(express.json());
@@ -18,8 +17,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
 
-app.use("/api/employees", authenticateToken, employeeRoutes);
-app.use("/api/attendance", authenticateToken, attendanceRoutes);
+app.use("/api/employees", require("./routes/employeeRoutes"));
+app.use("/api/attendance", require("./routes/attendanceRoutes"));
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -111,8 +110,8 @@ app.post("/api/login", async (req, res) => {
 //Add admin
 const crypto = require("crypto");
 
-app.post('/api/admins/add', authenticateToken, async (req, res) => {   
-     const { name, email } = req.body;
+app.post("/api/admins/add", async (req, res) => {
+    const { name, email } = req.body;
 
     // Generate random 8-character password
     const generatedPassword = crypto.randomBytes(4).toString("hex");
@@ -135,8 +134,8 @@ app.post('/api/admins/add', authenticateToken, async (req, res) => {
 });
 
 // Add a route to fetch all admins
-app.get('/api/admins', authenticateToken, async (req, res) => {
-        try {
+app.get('/api/admins', async (req, res) => {
+    try {
       const [admins] = await db.execute('SELECT id, name, email FROM users WHERE role = "admin"');
       res.json(admins);
     } catch (err) {
