@@ -7,6 +7,11 @@ const Task = () => {
     const [failedTasks, setFailedTasks] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [showAllTasks, setShowAllTasks] = useState(false);
+    const parseDate = (dateString) => {
+        const parts = dateString.split('/');
+        // Return a new Date object in the correct format (YYYY-MM-DD)
+        return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+    };
     const [newTask, setNewTask] = useState({
         task_name: '',
         task_description: '',
@@ -29,13 +34,21 @@ const Task = () => {
     const fetchTasks = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/tasks');
+            console.log("Fetched Tasks Raw Response:", response.data); // Log the raw response data
+    
+            // Check each task's due_date here
+            response.data.forEach((task, index) => {
+                console.log(`Task ${index + 1}:`, task.due_date);  // Log the due_date of each task
+            });
+    
             const sortedTasks = response.data.sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
-
             setTasks(sortedTasks);
         } catch (error) {
-            console.error("There was an error fetching tasks:", error);
+            console.error("Error fetching tasks:", error);
         }
     };
+    
+    
     const fetchEmployees = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/employees');
@@ -45,31 +58,59 @@ const Task = () => {
             console.error("There was an error fetching employees:", error);
         }
     };
+    
+    
+    const isValidDate = (date) => {
+        const parsedDate = parseDate(date);
+        return !isNaN(parsedDate.getTime()); // Return true if valid, false if invalid
+    };
+    
+    const isTaskDueToday = (taskDueDate) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set today's date to midnight for accurate comparison
+    
+        const taskDate = parseDate(taskDueDate); // Use the helper function here
+        taskDate.setHours(0, 0, 0, 0); // Set task's due date to midnight
+    
+        if (!isValidDate(taskDueDate)) {
+            console.error(`Invalid task due_date: ${taskDueDate}`);
+            return false; // If the date is invalid, don't compare
+        }
+    
+        return taskDate.getTime() === today.getTime(); // Compare dates if valid
+    };
+    
     const markOverdueTasksAsFailed = async () => {
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set today's date to midnight to avoid time comparison issues
-
+        today.setHours(0, 0, 0, 0); // Set today's date to midnight
+    
+        console.log("Today's Date for comparison:", today);
+    
         tasks.forEach(async (task) => {
-            const taskDueDate = new Date(task.due_date);
-            taskDueDate.setHours(0, 0, 0, 0); // Set the task's due date to midnight for accurate comparison
-
+            if (!isValidDate(task.due_date)) {
+                console.error(`Invalid due_date for Task ID: ${task.id}, skipping task.`);
+                return; // Skip invalid tasks
+            }
+    
+            const taskDueDate = parseDate(task.due_date); // Use the helper function
+            taskDueDate.setHours(0, 0, 0, 0); // Set task's due date to midnight
+    
+            console.log(`Task ID: ${task.id}, Task Due Date: ${taskDueDate}`);
+    
             if (taskDueDate < today) {
                 try {
+                    console.log(`Marking Task ID ${task.id} as failed.`);
                     await axios.put(`http://localhost:5000/api/tasks/${task.id}/fail`);
                     fetchTasks(); // Refresh task list after marking as failed
                 } catch (error) {
-                    console.error("There was an error marking the task as failed:", error);
+                    console.error("Error marking task as failed:", error);
                 }
             }
         });
     };
-    const isTaskDueToday = (taskDueDate) => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set today's date to midnight for accurate comparison
-        const taskDate = new Date(taskDueDate);
-        taskDate.setHours(0, 0, 0, 0); // Set task's due date to midnight
-        return taskDate.getTime() === today.getTime(); // Check if the due date matches today's date
-    };
+    
+    
+    
 
     useEffect(() => {
         fetchTasks();
@@ -168,14 +209,7 @@ const Task = () => {
             console.error("There was an error deleting the task:", error);
         }
     };
-    const handleCompleteTask = async (taskId) => {
-        try {
-            await axios.put(`http://localhost:5000/api/tasks/${taskId}/complete`); // Make sure backend handles 'completed' status
-            fetchTasks();
-        } catch (error) {
-            console.error("There was an error marking the task as completed:", error);
-        }
-    };
+    
     // Handle fail task
     const handleFailTask = async (taskId) => {
         try {

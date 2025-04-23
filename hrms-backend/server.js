@@ -726,6 +726,7 @@ app.delete('/api/holidays', async (req, res) => {
 
 
 //Tasks
+
 app.post('/api/tasks', async (req, res) => {
     const { task_name, task_description, employee_name, due_date, employeeId, status = 'pending' } = req.body;
 
@@ -968,8 +969,12 @@ app.put('/api/tasks/:taskId/complete', async (req, res) => {
     const { taskId } = req.params;
     try {
         // Assuming Task is your model for tasks
-        const task = await task.findByIdAndUpdate(taskId, { status: 'completed' }, { new: true });
-        res.json(task);
+        const [result] = await db.query('UPDATE tasks SET status = "completed" WHERE id = ?', [taskId]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        res.json({ message: 'Task updated successfully' });
     } catch (error) {
         console.error(error);
         res.status(500).send('Failed to mark task as completed');
@@ -1071,6 +1076,11 @@ app.get('/api/tasks/employee/:employeeId/counts', async (req, res) => {
         res.status(500).json({ message: 'Error fetching task counts', error: error.message });
     }
 });
+
+
+
+
+
 
 
 
