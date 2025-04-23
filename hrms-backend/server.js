@@ -1,5 +1,4 @@
 require("dotenv").config();
-console.log("DB_HOST:", process.env.DB_HOST);
 const express = require("express");
 const mysql = require("mysql2/promise");
 const bcrypt = require("bcryptjs");
@@ -11,6 +10,7 @@ const bodyParser = require("body-parser");
 const employeeRoutes = require("./routes/employeeRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const db = require("./db");
+const authenticateToken = require('./routes/authMiddleware');
 
 const app = express();
 app.use(express.json());
@@ -18,8 +18,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
 
-app.use("/api/employees", require("./routes/employeeRoutes"));
-app.use("/api/attendance", require("./routes/attendanceRoutes"));
+app.use("/api/employees", authenticateToken, employeeRoutes);
+app.use("/api/attendance", authenticateToken, attendanceRoutes);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -107,6 +107,65 @@ app.post("/api/login", async (req, res) => {
         }
     }
 });
+
+//Add admin
+const crypto = require("crypto");
+
+app.post('/api/admins/add', authenticateToken, async (req, res) => {   
+     const { name, email } = req.body;
+
+    // Generate random 8-character password
+    const generatedPassword = crypto.randomBytes(4).toString("hex");
+
+    try {
+        const hashedPassword = await bcrypt.hash(generatedPassword, 10);
+
+        await db.query(
+            "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'admin')",
+            [name, email, hashedPassword]
+        );
+
+        // Optionally: send email with password (or log it temporarily)
+        res.json({ message: "Admin created successfully", generatedPassword });
+
+    } catch (err) {
+        console.error("❌ Error adding admin:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+});
+
+// Add a route to fetch all admins
+app.get('/api/admins', authenticateToken, async (req, res) => {
+        try {
+      const [admins] = await db.execute('SELECT id, name, email FROM users WHERE role = "admin"');
+      res.json(admins);
+    } catch (err) {
+      console.error('Error fetching admins:', err);  // Log the error
+      res.status(500).json({ message: 'Failed to fetch admins', error: err.message });
+    }
+  });
+  
+  
+  // Add route to delete admin
+  app.delete('/api/admins/delete/:email', async (req, res) => {
+    const { email } = req.params;
+    try {
+      const [result] = await db.execute('DELETE FROM users WHERE email = ?', [email]);
+  
+      if (result.affectedRows > 0) {
+        res.status(200).json({ message: 'Admin deleted successfully' });
+      } else {
+        res.status(404).json({ message: 'Admin not found' });
+      }
+    } catch (err) {
+      console.error('Error deleting admin:', err);
+      res.status(500).json({ message: 'Failed to delete admin', error: err.message });
+    }
+  });
+  
+  
+  
+  
 
 
 // 🔹 Get All Employees (Move below verifyToken)
