@@ -11,6 +11,11 @@ const Sidebar = () => {
   const isActive = (path) =>
     location.pathname === path ? "bg-blue-500 text-white rounded-md p-2" : "text-black dark:text-white";
 
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    navigate("/login");
+  };
+
   return (
     <div className={`flex`}>
       <aside
@@ -38,12 +43,20 @@ const Sidebar = () => {
               <li className={`py-2 cursor-pointer ${isActive("/task")}`} onClick={() => navigate("/task")}>
                 Tasks
               </li>
+              
             </ul>
+            <div className="mt-1">
+          <button
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        </div>
           </nav>
         </div>
 
-        {/* Dark Mode Toggle */}
-        
+       
+
       </aside>
     </div>
   );

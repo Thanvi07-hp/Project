@@ -58,8 +58,7 @@ export default function Schedule({ darkMode }) {
       {/* Calendar */}
       <div
         className={`p-4 rounded-lg mt-3 transition-all duration-300 ${
-          darkMode ? "bg-gray-800 text-white" : "bg-gray-100 text-black"
-        }`}
+          darkMode ? "bg-gray-800 text-white" : "bg-gray-100 text-black"}`}
       >
         <div className="flex justify-between items-center mb-2">
           <button

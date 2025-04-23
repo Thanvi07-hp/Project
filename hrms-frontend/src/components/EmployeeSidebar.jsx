@@ -4,10 +4,16 @@ export default function EmployeeSidebar({ employee }) {
   const navigate = useNavigate();
   const location = useLocation();
 
+
   const isActive = (path) =>
     location.pathname.startsWith(path)
       ? "bg-blue-500 text-white rounded-md p-2"
       : "text-black dark:text-white";
+
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    navigate("/login");
+  };
 
   return (
     <aside className="w-64 min-h-screen p-4 bg-white text-black shadow-lg flex flex-col dark:bg-gray-800 dark:text-white">
@@ -36,6 +42,13 @@ export default function EmployeeSidebar({ employee }) {
             Holidays
           </li>
         </ul>
+        <div className="mt-1">
+          <button
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        </div>
       </nav>
     </aside>
   );
