@@ -1,6 +1,8 @@
 import { FiSun, FiMoon } from "react-icons/fi";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
+import ThemeToggle from "./ui/ThemeToggle";
+
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -19,7 +21,7 @@ const Sidebar = () => {
   return (
     <div className={`flex`}>
       <aside
-        className={`w-64 min-h-screen p-4 shadow-lg flex flex-col justify-between`}
+        className={`w-64 min-h-screen p-4 shadow-lg flex flex-col justify-between fixed`}
       >
         <div>
           <h2 className="text-2xl font-bold mb-4">HRMS</h2>
@@ -54,8 +56,13 @@ const Sidebar = () => {
           >
             Logout
           </button>
+          <div className="flex justify-start items-end h-[380px]">
+          <ThemeToggle />
         </div>
+        </div>
+        
           </nav>
+          
         </div>
 
        

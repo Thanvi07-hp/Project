@@ -1,4 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import ThemeToggle from "./ui/ThemeToggle";
+
 
 export default function EmployeeSidebar({ employee }) {
   const navigate = useNavigate();
@@ -48,8 +50,15 @@ export default function EmployeeSidebar({ employee }) {
           >
             Logout
           </button>
+          
         </div>
+        <div className="flex justify-start items-end h-[400px]">
+          <ThemeToggle />
+        </div>
+
+        
       </nav>
+      
     </aside>
   );
 }

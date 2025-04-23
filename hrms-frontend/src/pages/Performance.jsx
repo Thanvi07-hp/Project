@@ -56,15 +56,15 @@ const Performance = () => {
 
   // Calculate performance based on completed tasks
   const calculatePerformance = () => {
-    const total = assigned;
-    const completedTasks = completed;
-    const failedTasks = failed;
-
-    if (total === 0) return 0; // Prevent division by zero
-
-    const successRate = (completedTasks / total) * 100;
+    const total = assigned+completed+failed;         // Total tasks assigned
+    const completedTasks = completed; // Total tasks completed
+  
+    if (total === 0) return 0;      // Avoid division by zero
+  
+    const successRate = (completedTasks / total) * 100; // Percentage of successful tasks
     return successRate;
   };
+  
 
   const performance = calculatePerformance();
 

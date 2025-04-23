@@ -156,9 +156,12 @@ export default function EmployeeDashboard() {
   
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen ">
       {/* Sidebar */}
-      <EmployeeSidebar employee={employee} />
+     
+      <div className="fixed top-0 left-0 w-64 bg-white dark:bg-gray-800 p-6 shadow-lg h-full z-10">
+        <EmployeeSidebar employee={employee} />
+      </div>
 
       <div className="flex-1 p-8 overflow-auto">
         

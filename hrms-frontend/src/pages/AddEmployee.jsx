@@ -128,7 +128,7 @@ export default function AddEmployee() {
 
 
   return (
-    <div className="flex">
+    <div className="flex ml-[250px]">
       
 
       {/* Main Section */}

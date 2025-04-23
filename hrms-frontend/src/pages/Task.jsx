@@ -37,9 +37,7 @@ const Task = () => {
             console.log("Fetched Tasks Raw Response:", response.data); // Log the raw response data
     
             // Check each task's due_date here
-            response.data.forEach((task, index) => {
-                console.log(`Task ${index + 1}:`, task.due_date);  // Log the due_date of each task
-            });
+           
     
             const sortedTasks = response.data.sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
             setTasks(sortedTasks);
@@ -222,7 +220,7 @@ const Task = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-6">
+        <div className="max-w-4xl mx-auto p-6 ml-[250px]">
             <h1 className="text-4xl font-bold text-center mb-6">Task Management</h1>
 
             {/* Task Form */}

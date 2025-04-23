@@ -21,7 +21,6 @@ import { ToastContainer } from "react-toastify";
 import HolidayPage from "./components/HolidayPage";
 import Task from "./pages/Task";
 import "react-toastify/dist/ReactToastify.css";
-import ThemeToggle from "./components/ui/ThemeToggle";
 import EmployeeTask from "./components/EmployeeTask";
 
 
@@ -58,7 +57,7 @@ function MainContent() {
     <div className="flex">
       {!shouldHideSidebar && <Sidebar />}
       <div className="flex-1 p-4">
-        <ThemeToggle />
+        
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
