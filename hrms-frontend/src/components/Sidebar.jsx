@@ -43,6 +43,9 @@ const Sidebar = () => {
               <li className={`py-2 cursor-pointer ${isActive("/task")}`} onClick={() => navigate("/task")}>
                 Tasks
               </li>
+              <li className={`py-2 cursor-pointer ${isActive("/add-admin")}`} onClick={() => navigate("/add-admin")}>
+                Add Admins
+              </li>
               
             </ul>
             <div className="mt-1">
