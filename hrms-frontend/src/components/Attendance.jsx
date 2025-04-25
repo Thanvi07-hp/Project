@@ -92,7 +92,7 @@ const Attendance = () => {
   };
 
   return (
-    <div className="p-6 ml-[250px]">
+    <div className="p-6 ">
       <h1 className="text-3xl font-bold mb-6">Attendance</h1>
       <input
         type="text"

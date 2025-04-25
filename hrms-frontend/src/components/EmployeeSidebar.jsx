@@ -12,10 +12,12 @@ export default function EmployeeSidebar({ employee }) {
       ? "bg-blue-500 text-white rounded-md p-2"
       : "text-black dark:text-white";
 
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    navigate("/login");
-  };
+      const handleLogout = () => {
+        localStorage.removeItem("token"); 
+        localStorage.removeItem("role");
+        localStorage.removeItem("employeeId");
+        navigate("/login");
+      };
 
   return (
     <aside className="w-64 min-h-screen p-4 bg-white text-black shadow-lg flex flex-col dark:bg-gray-800 dark:text-white">

@@ -80,7 +80,7 @@ const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLa
   };
 
   return (
-    <div className="dark:bg-gray-900 dark:text-white ml-[250px]">
+    <div className="dark:bg-gray-900 dark:text-white ">
       <div className="flex min-h-screen">
 
         {/* Main Content */}

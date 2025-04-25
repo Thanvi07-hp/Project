@@ -40,7 +40,7 @@ const verifyToken = (req, res, next) => {
 app.post("/api/login", async (req, res) => {
 
     const { email, password } = req.body;
-    const table = "users";  // Ensure this table exists in your database
+    const table = "users";  
 
     try {
         const [results] = await db.query(`SELECT * FROM ${table} WHERE email = ?`, [email]);
@@ -161,9 +161,6 @@ app.get('/api/admins', async (req, res) => {
       res.status(500).json({ message: 'Failed to delete admin', error: err.message });
     }
   });
-  
-  
-  
   
 
 

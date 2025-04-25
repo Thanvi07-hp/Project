@@ -180,7 +180,7 @@ const AdminDashboard = () => {
 
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 dark:bg-gray-900 dark:text-white ml-[250px]">
+    <div className="min-h-screen bg-gray-100 p-6 dark:bg-gray-900 dark:text-white ">
       {/* Header */}
       <header className="flex justify-between items-center mb-6">
         <div>

@@ -76,8 +76,8 @@ export default function AddAdmin() {
   
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-semibold text-gray-700 mb-4">Add New Admin</h2>
+    <div className="max-w-3xl mt-14 ml-[220px] p-6 bg-white shadow-lg rounded-lg dark:bg-gray-800 dark:text-black ">
+      <h2 className="text-2xl font-semibold text-gray-700 mb-4 dark:text-white">Add New Admin</h2>
       <form onSubmit={handleAddAdmin} className="space-y-4">
         <div>
           <input
@@ -85,7 +85,7 @@ export default function AddAdmin() {
             placeholder="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full p-3 dark:bg-gray-800 dark:text-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
         </div>
         <div>
@@ -94,7 +94,7 @@ export default function AddAdmin() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full p-3 border dark:bg-gray-800 dark:text-white border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
         </div>
         <button type="submit" className="bg-purple-600 text-white py-2 px-3 text-sm rounded hover:bg-purple-700">
@@ -111,9 +111,9 @@ export default function AddAdmin() {
       )}
 
       <div className="mt-8">
-        <h3 className="text-xl font-semibold text-gray-700">Admins List</h3>
+        <h3 className="text-xl font-semibold text-gray-700 dark:text-white">Admins List</h3>
         <div className="overflow-x-auto mt-4 bg-gray-50 shadow-md rounded-lg">
-          <table className="min-w-full table-auto">
+          <table className="min-w-full table-auto dark:bg-gray-800 dark:text-white">
             <thead className="bg-purple-600 text-white">
               <tr>
                 <th className="px-6 py-3 text-left">Name</th>
