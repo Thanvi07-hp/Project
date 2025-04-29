@@ -4,16 +4,15 @@ import EmployeeSidebar from "../components/EmployeeSidebar";
 import Schedule from "../components/Schedule";
 import Performance from "./Performance";
 
-
-
 export default function EmployeeDashboard() {
   const [employee, setEmployee] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
   const [assignedTodayTasks, setAssignedTodayTasks] = useState([]);
   const [dueTodayTasks, setDueTodayTasks] = useState([]);
-  const [completedTaskCounts, setCompletedTaskCounts] = useState([]); // Store task count for the graph
+  const [completedTaskCounts, setCompletedTaskCounts] = useState([]);
   const [currentAssignedTask, setCurrentAssignedTask] = useState(0);
   const [currentDueTask, setCurrentDueTask] = useState(0);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -144,152 +143,153 @@ export default function EmployeeDashboard() {
     );
   };
 
-  if (!employee) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <p className="text-xl text-gray-600">Loading your dashboard...</p>
-      </div>
-    );
-  }
-
-  // Chart data for performance matrix using completed task counts
-  
-
   return (
-    <div className="flex h-screen ">
-      {/* Sidebar */}
-     
-      <div className="fixed top-0 left-0 w-64 bg-white dark:bg-gray-800 p-6 shadow-lg h-full z-10">
-        <EmployeeSidebar employee={employee} />
-      </div>
-
-      <div className="flex-1 p-8 overflow-auto">
-        
-        <div className="mb-8 flex items-center justify-between">
-          {/* Header Section */}
-          <div className="flex items-center space-x-6">
-            <div className="relative">
-              <label htmlFor="profile-upload">
-                <img
-                  src={profilePicture}
-                  alt="Profile"
-                  className="w-32 h-32 rounded-full object-cover border-4 border-gradient-to-r from-purple-400 via-pink-500 to-red-500 cursor-pointer shadow-lg"
-                />
-              </label>
-              <input
-                type="file"
-                id="profile-upload"
-                accept="image/*"
-                className="hidden"
-                onChange={handleProfilePictureChange}
-              />
-            </div>
-            <div>
-              <h2 className="text-3xl font-semibold text-gray-800 dark:text-white">
-                Hello, {employee.firstName} {employee.lastName} 👋
-              </h2>
-              <p className="text-lg text-gray-600 dark:text-white">We're happy to have you on board! 🚀</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Performance Matrix */}
-          <div className="bg-white dark:bg-gray-800  p-6 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105">
-            <Performance/>
-          </div>
-
-          {/* Schedule Component */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105">
-            <Schedule />
-          </div>
-        </div>
-         <div className="mt-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          
-          <div className="bg-white dark:bg-gray-800  p-6 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4 flex text-center dark:text-white">
-              Assigned Today
-              
-            </h3>
-            {assignedTodayTasks.length === 0 ? (
-              <p className="text-gray-500 etxt-center">No tasks assigned for today.</p>
-            ) : (
-              <div>
-                <div className="space-y-6">
-                  <div className="bg-gray-100 border-l-4 border-purple-500 p-4 rounded-lg shadow-md">
-                    <div className="flex justify-between items-center">
-                      <h4 className="text-xl font-semibold text-purple-700">
-                        {assignedTodayTasks[currentAssignedTask]?.task_name}
-                      </h4>
-                      <span className="text-sm text-gray-500">
-                        {currentAssignedTask + 1}/{assignedTodayTasks.length}
-                      </span>
-                    </div>
-                    <p className="text-gray-700 mt-2">{assignedTodayTasks[currentAssignedTask]?.task_description}</p>
+    <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
+      <EmployeeSidebar 
+        employee={employee} 
+        onCollapse={(collapsed) => setIsSidebarCollapsed(collapsed)} 
+      />
+      
+      {/* Main Content */}
+      <main className={`flex-1 transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : ''}`}>
+        <div className="p-8">
+          {!employee ? (
+            <p className="text-xl text-gray-600">Loading your dashboard...</p>
+          ) : (
+            <>
+              {/* Header Section */}
+              <div className="mb-8 flex items-center justify-between">
+                <div className="flex items-center space-x-6">
+                  <div className="relative">
+                    <label htmlFor="profile-upload">
+                      <img
+                        src={profilePicture}
+                        alt="Profile"
+                        className="w-32 h-32 rounded-full object-cover border-4 border-gradient-to-r from-purple-400 via-pink-500 to-red-500 cursor-pointer shadow-lg"
+                      />
+                    </label>
+                    <input
+                      type="file"
+                      id="profile-upload"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleProfilePictureChange}
+                    />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-semibold text-gray-800 dark:text-white">
+                      Hello, {employee.firstName} {employee.lastName} 👋
+                    </h2>
+                    <p className="text-lg text-gray-600 dark:text-white">We're happy to have you on board! 🚀</p>
                   </div>
                 </div>
-                <div className="mt-4 flex justify-between">
-                  <button
-                    onClick={handlePrevAssignedTask}
-                    className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition"
-                  >
-                    Previous
-                  </button>
-                  <button
-                    onClick={handleNextAssignedTask}
-                    className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition"
-                  >
-                    Next
-                  </button>
+              </div>
+
+              {/* Dashboard Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Performance Matrix */}
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105">
+                  <Performance/>
+                </div>
+
+                {/* Schedule Component */}
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105">
+                  <Schedule />
                 </div>
               </div>
-            )}
-          </div>
 
-        
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105">
-            <h3 className="text-2xl font-semibold text-gray-800  mb-4 flex justify-between dark:text-white">
-              Due Today
-              <span className="text-gray-500 text-lg">({dueTodayTasks.length} tasks)</span>
-            </h3>
-            {dueTodayTasks.length === 0 ? (
-              <p className="text-gray-500">No tasks due for today.</p>
-            ) : (
-              <div>
-                <div className="space-y-6">
-                  <div className="bg-purple-50 p-4 rounded-lg shadow-md">
-                    <div className="flex justify-between items-center">
-                      <h4 className="text-xl font-semibold text-purple-700">
-                        {dueTodayTasks[currentDueTask]?.task_name}
-                      </h4>
-                      <span className="text-sm text-gray-500">
-                        {currentDueTask + 1}/{dueTodayTasks.length}
-                      </span>
-                    </div>
-                    <p className="text-gray-700 mt-2">{dueTodayTasks[currentDueTask]?.task_description}</p>
+              {/* Tasks Section */}
+              <div className="mt-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Assigned Tasks */}
+                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105">
+                    <h3 className="text-2xl font-semibold text-gray-800 mb-4 flex text-center dark:text-white">
+                      Assigned Today
+                    </h3>
+                    {assignedTodayTasks.length === 0 ? (
+                      <p className="text-gray-500 text-center">No tasks assigned for today.</p>
+                    ) : (
+                      <div>
+                        <div className="space-y-6">
+                          <div className="bg-gray-100 dark:bg-gray-700 border-l-4 border-purple-500 p-4 rounded-lg shadow-md">
+                            <div className="flex justify-between items-center">
+                              <h4 className="text-xl font-semibold text-purple-700 dark:text-purple-400">
+                                {assignedTodayTasks[currentAssignedTask]?.task_name}
+                              </h4>
+                              <span className="text-sm text-gray-500 dark:text-gray-400">
+                                {currentAssignedTask + 1}/{assignedTodayTasks.length}
+                              </span>
+                            </div>
+                            <p className="text-gray-700 dark:text-gray-300 mt-2">
+                              {assignedTodayTasks[currentAssignedTask]?.task_description}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="mt-4 flex justify-between">
+                          <button
+                            onClick={handlePrevAssignedTask}
+                            className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition"
+                          >
+                            Previous
+                          </button>
+                          <button
+                            onClick={handleNextAssignedTask}
+                            className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition"
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Due Tasks */}
+                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105">
+                    <h3 className="text-2xl font-semibold text-gray-800 mb-4 flex text-center dark:text-white">
+                      Due Today
+                    </h3>
+                    {dueTodayTasks.length === 0 ? (
+                      <p className="text-gray-500 text-center">No tasks due today.</p>
+                    ) : (
+                      <div>
+                        <div className="space-y-6">
+                          <div className="bg-gray-100 dark:bg-gray-700 border-l-4 border-purple-500 p-4 rounded-lg shadow-md">
+                            <div className="flex justify-between items-center">
+                              <h4 className="text-xl font-semibold text-purple-700 dark:text-purple-400">
+                                {dueTodayTasks[currentDueTask]?.task_name}
+                              </h4>
+                              <span className="text-sm text-gray-500 dark:text-gray-400">
+                                {currentDueTask + 1}/{dueTodayTasks.length}
+                              </span>
+                            </div>
+                            <p className="text-gray-700 dark:text-gray-300 mt-2">
+                              {dueTodayTasks[currentDueTask]?.task_description}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="mt-4 flex justify-between">
+                          <button
+                            onClick={handlePrevDueTask}
+                            className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition"
+                          >
+                            Previous
+                          </button>
+                          <button
+                            onClick={handleNextDueTask}
+                            className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition"
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="mt-4 flex justify-between">
-                  <button
-                    onClick={handlePrevDueTask}
-                    className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition"
-                  >
-                    Previous
-                  </button>
-                  <button
-                    onClick={handleNextDueTask}
-                    className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition"
-                  >
-                    Next
-                  </button>
-                </div>
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }
