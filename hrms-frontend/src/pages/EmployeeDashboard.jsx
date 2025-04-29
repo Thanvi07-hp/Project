@@ -56,10 +56,10 @@ export default function EmployeeDashboard() {
         }
 
         const tasks = await response.json();
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toLocaleDateString("en-IN");
 
         const assignedToday = tasks.filter(task => task.assigned_date);
-        const dueToday = tasks.filter(task => task.due_date?.split('T')[0] === today);
+        const dueToday = tasks.filter(task => task.due_date === today);
 
         setAssignedTodayTasks(assignedToday);
         setDueTodayTasks(dueToday);

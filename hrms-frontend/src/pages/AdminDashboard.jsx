@@ -96,6 +96,11 @@ const AdminDashboard = () => {
       hour12: true
     });
   };
+  const formDate = (dateString) =>
+  {
+    const today = new Date().toLocaleDateString("en-IN");
+    return today
+  }
   const formattedDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleString("en-US", {

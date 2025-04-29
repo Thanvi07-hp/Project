@@ -401,13 +401,6 @@ const Task = () => {
                 </button>
             </div>
 
-
-
-
-
-
-
-
             <div className="flex space-x-20 mt-8 dark:bg-gray-800 dark:text-white bg-gray-100 rounded-lg">
                 {/* Failed Tasks Section */}
                 <div className="w-full  rounded-lg m-5">

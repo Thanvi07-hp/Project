@@ -16,18 +16,10 @@ const pool = mysql.createPool({
   timeout: 60000,
 });
 
-pool.on('error', (err) => {
-  console.error('Unexpected error on idle connection', err);
-  process.exit(-1);
-});
-
-pool.on('acquire', (connection) => {
-  console.log('Connection %d acquired', connection.threadId);
-});
-
-pool.on('release', (connection) => {
-  console.log('Connection %d released', connection.threadId);
-});
+// pool.on('error', (err) => {
+//   console.error('Unexpected error on idle connection', err);
+//   process.exit(-1);
+// });
 
 pool.getConnection()
   .then(connection => {
