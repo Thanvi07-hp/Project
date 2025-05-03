@@ -95,7 +95,7 @@ export default function EmployeeManagement() {
   if (!employee) return <p>Loading employee details...</p>;
 
   return (
-    <div className="flex min-h-screen dark:bg-gray-900 dark:text-white ml-[250px]">
+    <div className="flex min-h-screen dark:bg-gray-900 dark:text-white  ml-[250px]">
 
       {/* Main Content */}
       <div className="flex-1 p-6">

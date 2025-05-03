@@ -110,7 +110,7 @@ export default function EditEmployee() {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 bg-white p-6 rounded-lg shadow-lg">
+    <div className="max-w-2xl mx-auto mt-10 bg-white p-6 rounded-lg shadow-lg  ml-[250px]">
       <h2 className="text-2xl font-bold mb-4">Edit Employee</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Name Fields */}

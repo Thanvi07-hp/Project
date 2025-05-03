@@ -89,7 +89,7 @@ export default function EmployeeSidebar({ employee, onCollapse }) {
         <aside className="h-full bg-white dark:bg-gray-800 shadow-lg flex flex-col">
           <div className="p-4">
             <div className="flex items-center justify-between mb-4">
-              {!isCollapsed && <h2 className="text-2xl font-bold text-gray-800 dark:text-white">HRMS</h2>}
+              {!isCollapsed && <h2 className="text-2xl font-bold text-gray-800 dark:text-white">EMS</h2>}
               <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"

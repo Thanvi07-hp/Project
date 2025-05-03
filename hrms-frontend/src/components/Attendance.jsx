@@ -14,9 +14,13 @@ const Attendance = () => {
   const [filter, setFilter] = useState("");
 
   useEffect(() => {
-    fetchEmployees();
+    const savedData = localStorage.getItem("employees");
+    if (savedData) {
+      setEmployees(JSON.parse(savedData));
+    } else {
+      fetchEmployees();
+    }
   }, []);
-
   const fetchEmployees = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/employees");
@@ -24,18 +28,19 @@ const Attendance = () => {
         ...emp,
         check_in_time: emp.check_in_time
           ? new Date(emp.check_in_time).toLocaleTimeString("en-GB", {
-            hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
-          })
+              hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
+            })
           : "--",
         status: emp.status || "Not Marked"
       }));
       setEmployees(formattedEmployees);
-      localStorage.setItem("employees", JSON.stringify(formattedEmployees)); // Save data
+      // NO need to set localStorage here anymore
     }
     catch (err) {
       toast.error("Failed to fetch employees.");
     }
   };
+  
 
   const markAttendance = async (employeeId, status) => {
     try {
@@ -92,7 +97,7 @@ const Attendance = () => {
   };
 
   return (
-    <div className="p-6 ml-[250px]">
+    <div className="p-6  ml-[250px]">
       <h1 className="text-3xl font-bold mb-6">Attendance</h1>
       <input
         type="text"
