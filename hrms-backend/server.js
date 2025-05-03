@@ -1134,10 +1134,27 @@ app.get('/api/tasks/employee/:employeeId/counts', async (req, res) => {
     }
 });
 
+app.delete('/api/failed-tasks/:taskId', async (req, res) => {
+    const { taskId } = req.params;
 
+    try {
+        // Query the database to delete the task with the given taskId
+        const result = await db.query(`
+            DELETE FROM tasks
+            WHERE id = ? AND status = 'failed'
+        `, [taskId]);
 
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Failed task not found' });
+        }
 
-
+        res.status(200).json({ message: 'Failed task removed successfully' });
+    } catch (error) {
+        console.error(error);
+        // Send an error response if something goes wrong
+        res.status(500).json({ message: 'Error deleting failed task', error });
+    }
+});
 
 
 

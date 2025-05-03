@@ -107,9 +107,17 @@ const Task = () => {
         });
     };
     
+    const handleRemoveFailedTask = async (taskId) => {
+        try {
+            // Send request to backend to remove the failed task
+            await axios.delete(`http://localhost:5000/api/failed-tasks/${taskId}`);
+            // Refresh the failed tasks list
+            fetchFailedTasks();
+        } catch (error) {
+            console.error("There was an error removing the failed task:", error);
+        }
+    };
     
-    
-
     useEffect(() => {
         fetchTasks();
         fetchEmployees();
@@ -423,6 +431,12 @@ const Task = () => {
                         ) : (
                             <p className='text-center'>No failed tasks available</p>
                         )}
+                        <button
+                            className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition mt-4"
+                            onClick={() => handleRemoveFailedTask(task.id)}
+                        >
+                            Remove
+                        </button>
                     </ul>
                 </div>
                 <div className="w-full rounded-lg">
