@@ -96,6 +96,11 @@ const AdminDashboard = () => {
       hour12: true
     });
   };
+  const formDate = (dateString) =>
+  {
+    const today = new Date().toLocaleDateString("en-IN");
+    return today
+  }
   const formattedDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleString("en-US", {
@@ -180,7 +185,7 @@ const AdminDashboard = () => {
 
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 dark:bg-gray-900 dark:text-white ">
+    <div className="min-h-screen bg-gray-100 p-6 dark:bg-gray-900 dark:text-white ml-[250px]">
       {/* Header */}
       <header className="flex justify-between items-center mb-6">
         <div>

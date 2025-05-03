@@ -61,21 +61,23 @@ export default function EmployeeAttendance() {
     fetchEmployeeAndAttendance();
   }, [navigate]);
 
-  if (!employee) return <div>Loading...</div>;
-
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white">
       <EmployeeSidebar employee={employee} />
 
       <div className="flex-1 p-6">
         <h2 className="text-2xl font-semibold mb-6">My Attendance</h2>
-
+        {(!employee) ? (
+        <div>Loading...</div>
+      ) : (
+        <>
         <div className="max-w-full mb-8 bg-white p-4 shadow-md rounded-lg dark:bg-gray-800 dark:text-gray-400">
           <h3 className="text-lg font-medium mb-4">Attendance Overview</h3>
-<center>
   
-{chartData.length === 0 ? (
-            <p className="text-center text-gray-500">No attendance for this employee</p>
+  <center>
+   
+  {chartData.length === 0 ? (
+              <p className="text-center text-gray-500">No attendance for this employee</p>
           ) : (
             <center>
               <ResponsiveContainer width="100%" height={300}>
@@ -120,6 +122,8 @@ export default function EmployeeAttendance() {
             </tbody>
           </table>
         </div>
+        </>
+      )}
       </div>
     </div>
   );

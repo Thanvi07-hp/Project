@@ -78,7 +78,7 @@ const HolidayPage = () => {
 
 
   return (
-    <div className="p-6 ">
+    <div className="p-6  ml-[250px]">
       <div className="flex justify-between items-center mb-6">
       <h2 className="text-2xl font-bold mb-4">Holidays</h2>
         <button

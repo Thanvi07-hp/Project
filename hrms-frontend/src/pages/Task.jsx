@@ -220,7 +220,7 @@ const Task = () => {
     };
 
     return (
-        <>
+        <div className=' ml-[250px]'>
             <h1 className="text-3xl font-semibold text-center mb-5 mt-10">Task Management</h1>
             <div className="max-w-4xl mx-auto p-10 dark:bg-gray-800 rounded-lg bg-gray-100 ">
 
@@ -457,7 +457,7 @@ const Task = () => {
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 

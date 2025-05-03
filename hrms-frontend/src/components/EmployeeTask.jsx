@@ -82,11 +82,11 @@ const EmployeeTask = () => {
 
   // Render the tasks or a loading/error message
   return (
-    <div className="flex bg-gray-100 dark:bg-gray-900">
+    <div className="flex bg-gray-100 dark:bg-gray-900 ">
       <EmployeeSidebar employee={employee} />
 
-      <div className="mx-auto p-6 w-full">
-        <h2 className="text-4xl font-bold text-center mb-6">Employee Tasks</h2>
+      <div className="mx-auto p-6 w-full ">
+        <h2 className="text-4xl font-bold text-center mb-6 ">Employee Tasks</h2>
 
         {loading ? (
           <p>Loading tasks...</p>

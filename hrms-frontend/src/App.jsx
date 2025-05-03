@@ -20,6 +20,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HolidayPage from "./components/HolidayPage";
 import Task from "./pages/Task";
+import "react-toastify/dist/ReactToastify.css";
+import ThemeToggle from "./components/ui/ThemeToggle";
 import EmployeeTask from "./components/EmployeeTask";
 
 function App() {
@@ -63,36 +65,36 @@ function MainContent() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {!shouldHideSidebar && <Sidebar />}
-      <div className={`transition-all duration-300 ${!shouldHideSidebar ? 'ml-64' : 'ml-0'}`}>
-        <div className="p-4">
-          <Routes>
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="/login" element={<Login />} />
-            
-            {/* Admin Routes */}
-            <Route path="/admin-dashboard" element={<ProtectedRoute element={<AdminDashboard />} allowedRoles={["admin"]} />} />
-            <Route path="/all-employees" element={<ProtectedRoute element={<AllEmployees />} allowedRoles={["admin"]} />} />
-            <Route path="/add-employee" element={<ProtectedRoute element={<AddEmployee />} allowedRoles={["admin"]} />} />
-            <Route path="/edit-employee/:employeeId" element={<ProtectedRoute element={<EditEmployee />} allowedRoles={["admin"]} />} />
-            <Route path="/employee-management/:id" element={<ProtectedRoute element={<EmployeeManagement />} allowedRoles={["admin"]} />} />
-            <Route path="/attendance" element={<ProtectedRoute element={<Attendance />} allowedRoles={["admin"]} />} />
-            <Route path="/task" element={<ProtectedRoute element={<Task />} allowedRoles={["admin"]} />} />
-            <Route path="/payroll" element={<ProtectedRoute element={<Payroll />} allowedRoles={["admin"]} />} />
-            <Route path="/holidays" element={<ProtectedRoute element={<HolidayPage />} allowedRoles={["admin"]} />} />
-            <Route path="/add-admin" element={<ProtectedRoute element={<AddAdmin />} allowedRoles={["admin"]} />} />
-            
-            {/* Employee Routes */}
-            <Route path="/employee-dashboard" element={<ProtectedRoute element={<EmployeeDashboard />} allowedRoles={["employee"]} />} />
-            <Route path="/edit-profile/:id" element={<ProtectedRoute element={<EmployeeProfileEdit />} allowedRoles={["employee"]} />} />
-            <Route path="/emp-attendance" element={<ProtectedRoute element={<EmployeeAttendance />} allowedRoles={["employee"]} />} />
-            <Route path="/emp-payroll" element={<ProtectedRoute element={<EmployeePayroll />} allowedRoles={["employee"]} />} />
-            <Route path="/emp-holidays" element={<ProtectedRoute element={<EmployeeHolidays />} allowedRoles={["employee"]} />} />
-            <Route path="/emp-task" element={<ProtectedRoute element={<EmployeeTask />} allowedRoles={["employee"]} />} />
-          </Routes>
+      <div className="flex-1 p-4">
+      
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<Login />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin-dashboard" element={<ProtectedRoute element={<AdminDashboard />} allowedRoles={['admin']} />} />
+          <Route path="/all-employees" element={<ProtectedRoute element={<AllEmployees />} allowedRoles={['admin']} />} />
+          <Route path="/add-employee" element={<ProtectedRoute element={<AddEmployee />} allowedRoles={['admin']} />} />
+          <Route path="/edit-employee/:employeeId" element={<ProtectedRoute element={<EditEmployee />} allowedRoles={['admin']} />} />
+          <Route path="/employee-management/:id" element={<ProtectedRoute element={<EmployeeManagement />} allowedRoles={['admin']} />} />
+          <Route path="/attendance" element={<ProtectedRoute element={<Attendance />} allowedRoles={['admin']} />} />
+          <Route path="/task" element={<ProtectedRoute element={<Task />} allowedRoles={['admin']} />} />
+          <Route path="/payroll" element={<ProtectedRoute element={<Payroll />} allowedRoles={['admin']} />} />
+          <Route path="/holidays" element={<ProtectedRoute element={<HolidayPage />} allowedRoles={['admin']} />} />
+          <Route path="/add-admin" element={<ProtectedRoute element={<AddAdmin />} allowedRoles={['admin']} />} />
+          
+          {/* Employee Routes */}
+          <Route path="/employee-dashboard" element={<ProtectedRoute element={<EmployeeDashboard />} allowedRoles={['employee']} />} />
+          <Route path="/edit-profile/:id" element={<ProtectedRoute element={<EmployeeProfileEdit />} allowedRoles={['employee']} />} />
+          <Route path="/emp-attendance" element={<ProtectedRoute element={<EmployeeAttendance />} allowedRoles={['employee']} />} />
+          <Route path="/emp-payroll" element={<ProtectedRoute element={<EmployeePayroll />} allowedRoles={['employee']} />} />
+          <Route path="/emp-holidays" element={<ProtectedRoute element={<EmployeeHolidays />} allowedRoles={['employee']} />} />
+          <Route path="/emp-task" element={<ProtectedRoute element={<EmployeeTask />} allowedRoles={['employee']} />} />
+        </Routes>
         </div>
       </div>
-    </div>
+   
   );
 }
 
-export default App;
+export default App;``

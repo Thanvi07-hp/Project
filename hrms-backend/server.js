@@ -9,6 +9,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const employeeRoutes = require("./routes/employeeRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
+const authRoutes = require("./routes/authRoutes");
 const db = require("./db");
 
 const app = express();
@@ -19,6 +20,7 @@ app.use(cors());
 
 app.use("/api/employees", require("./routes/employeeRoutes"));
 app.use("/api/attendance", require("./routes/attendanceRoutes"));
+app.use("/api/auth", authRoutes);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 

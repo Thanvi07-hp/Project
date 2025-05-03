@@ -48,7 +48,7 @@ export default function EmployeePayroll() {
     fetchData();
   }, [employeeId, navigate]);
 
-  if (loading) return <div className="p-6">Loading payroll...</div>;
+  
 
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -59,7 +59,9 @@ export default function EmployeePayroll() {
 
         <div className="bg-white shadow rounded p-6 dark:bg-gray-900">
           <h3 className="text-lg font-medium mb-4">💰 Payroll Details</h3>
-
+          {loading ? 
+          ( <div className="p-6">Loading payroll...</div>) : (
+            <>
           {payroll ? (
             <table className="w-full border border-gray-200 text-left">
               <thead>
@@ -83,6 +85,8 @@ export default function EmployeePayroll() {
             </table>
           ) : (
             <p className="text-gray-500">No payroll data available.</p>
+          )}
+          </>
           )}
         </div>
       </div>

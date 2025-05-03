@@ -86,7 +86,7 @@ const Payroll = () => {
   };
   
   return (
-    <div className="p-6">
+    <div className="p-6  ml-[250px]">
       <h2 className="text-2xl font-bold mb-4">Payroll Management</h2>
       
       <button

@@ -1,23 +1,66 @@
 import { Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 
 const ProtectedRoute = ({ element, allowedRoles = [] }) => {
-  const token = localStorage.getItem('token');
-  const userRole = localStorage.getItem('role');
-  
-  // Check if user is authenticated and authorized
-  if (!token) {
-    // Not authenticated, redirect to login
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('token');
+      const role = localStorage.getItem('role');
+
+      if (!token) {
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        // Check if token is expired
+        const decodedToken = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+
+        if (decodedToken.exp < currentTime) {
+          // Token expired
+          localStorage.removeItem('token');
+          localStorage.removeItem('role');
+          localStorage.removeItem('employeeId');
+          setIsAuthenticated(false);
+        } else {
+          setIsAuthenticated(true);
+          setUserRole(role);
+        }
+      } catch (error) {
+        // Invalid token
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        localStorage.removeItem('employeeId');
+        setIsAuthenticated(false);
+      }
+
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, []);
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+    </div>;
+  }
+
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
-  // If allowedRoles is provided and not empty, check if user role is allowed
+
   if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
-    // User is authenticated but not authorized for this route
-    // Redirect to the appropriate dashboard based on role
     return <Navigate to={userRole === 'admin' ? '/admin-dashboard' : '/employee-dashboard'} replace />;
   }
-  
-  // User is authenticated and authorized, render the protected component
+
   return element;
 };
 

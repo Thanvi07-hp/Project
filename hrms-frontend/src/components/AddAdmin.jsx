@@ -76,7 +76,7 @@ export default function AddAdmin() {
   
 
   return (
-    <div className="max-w-3xl mt-14 ml-[220px] p-6 bg-white shadow-lg rounded-lg dark:bg-gray-800 dark:text-black ">
+    <div className="max-w-3xl mt-14 ml-[250px] p-6 bg-white shadow-lg rounded-lg dark:bg-gray-800 dark:text-black ">
       <h2 className="text-2xl font-semibold text-gray-700 mb-4 dark:text-white">Add New Admin</h2>
       <form onSubmit={handleAddAdmin} className="space-y-4">
         <div>
